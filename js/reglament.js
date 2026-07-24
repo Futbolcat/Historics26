@@ -440,28 +440,19 @@ function simularClassificacio(
 
 function hayEmpateSinResolver(clasificacion) {
 
-
     for (let i = 0; i < clasificacion.length - 1; i++) {
-
 
         const a = clasificacion[i];
         const b = clasificacion[i + 1];
-
 
         if (
             a.pts === b.pts &&
             a.dg === b.dg &&
             a.gf === b.gf
         ) {
-
             return true;
-
         }
-
     }
-
-
     return false;
-
 }
 

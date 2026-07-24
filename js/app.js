@@ -41,61 +41,84 @@ function crearTorneig(){
 
 }
 
-function crearSemifinals(){
-	
-	const aside = document.createElement("aside");
+function crearSemifinals() {
 
-	aside.id = "semifinals";
-	aside.className = "grupo semifinales";
+    const aside = document.createElement("aside");
+
+    aside.id = "semifinals";
+    aside.className = "grupo semifinales";
 
 
     aside.innerHTML = `
-    <div class="cabecera-grupo">
-        <h2>Semifinals</h2>
 
-		<button
-			class="btn-bloqueo"
-			title="Bloquear eliminatòria">
-			🔓
-		</button>
+    <div class="cabecera-grupo">
+
+        <h2>Semifinals</h2>
 
     </div>
 
 
     <div class="fase-final">
 
-		<div class="partido partido-eliminatoria" data-semifinal="s1">
+        <div class="semifinal">
 
-			<div class="equipo local" data-origen="dilluns">
-                <span>Guanyador Dilluns</span>
+            <div class="semifinal-partido" data-semifinal="s1">
+
+                <div class="semifinal-equipo semifinal-local" data-origen="dilluns">
+                    <span>Guanyador Dilluns</span>
+                </div>
+
+
+                <div class="semifinal-marcador">
+
+                    <input type="number"
+                           class="semifinal-gol semifinal-gol-local"
+                           min="0"
+                           disabled>
+
+
+                    <span>-</span>
+
+
+                    <input type="number"
+                           class="semifinal-gol semifinal-gol-visitante"
+                           min="0"
+                           disabled>
+
+                </div>
+
+
+                <div class="semifinal-equipo semifinal-visitante"
+                     data-origen="dimarts">
+
+                    <span>Guanyador Dimarts</span>
+
+                </div>
+
+
             </div>
 
 
-            <div class="marcador">
+            <div class="semifinal-penaltis oculto">
 
-                <input type="number" class="gol gol-local" min="0" disabled>
+                <span class="semifinal-icono">
+                    🎯
+                </span>
+
+
+                <input type="number"
+                       class="semifinal-penal semifinal-penal-local"
+                       min="0"
+                       disabled>
+
 
                 <span>-</span>
 
-                <input type="number" class="gol gol-visitante" min="0" disabled>
 
-            </div>
-
-
-            <div class="equipo visitante" data-origen="dimarts">
-                <span>Guanyador Dimarts</span>
-            </div>
-
-
-            <div class="penaltis oculto">
-
-                <span class="icono">🎯</span>
-
-                <input type="number" class="penal penal-local" min="0">
-
-                -
-
-                <input type="number" class="penal penal-visitant" min="0">
+                <input type="number"
+                       class="semifinal-penal semifinal-penal-visitante"
+                       min="0"
+                       disabled>
 
             </div>
 
@@ -104,39 +127,72 @@ function crearSemifinals(){
 
 
 
-        <div class="partido partido-eliminatoria" data-semifinal="s2">
+
+        <div class="semifinal">
 
 
-            <div class="equipo local" data-origen="dimecres">
-                <span>Guanyador Dimecres</span>
+            <div class="semifinal-partido" data-semifinal="s2">
+
+
+                <div class="semifinal-equipo semifinal-local"
+                     data-origen="dimecres">
+
+                    <span>Guanyador Dimecres</span>
+
+                </div>
+
+
+                <div class="semifinal-marcador">
+
+                    <input type="number"
+                           class="semifinal-gol semifinal-gol-local"
+                           min="0"
+                           disabled>
+
+
+                    <span>-</span>
+
+
+                    <input type="number"
+                           class="semifinal-gol semifinal-gol-visitante"
+                           min="0"
+                           disabled>
+
+                </div>
+
+
+                <div class="semifinal-equipo semifinal-visitante"
+                     data-origen="dijous">
+
+                    <span>Guanyador Dijous</span>
+
+                </div>
+
+
             </div>
 
 
-            <div class="marcador">
 
-                <input type="number" class="gol gol-local" min="0" disabled>
+            <div class="semifinal-penaltis oculto">
+
+                <span class="semifinal-icono">
+                    🎯
+                </span>
+
+
+                <input type="number"
+                       class="semifinal-penal semifinal-penal-local"
+                       min="0"
+                       disabled>
+
 
                 <span>-</span>
 
-                <input type="number" class="gol gol-visitante" min="0" disabled>
 
-            </div>
-
-
-            <div class="equipo visitante" data-origen="dijous">
-                <span>Guanyador Dijous</span>
-            </div>
-
-
-            <div class="penaltis oculto">
-
-                <span class="icono">🎯</span>
-
-                <input type="number" class="penal penal-local" min="0">
-
-                -
-
-                <input type="number" class="penal penal-visitant" min="0">
+                <input type="number"
+                       class="semifinal-penal semifinal-penal-visitante"
+                       min="0"
+                       disabled>
 
             </div>
 
@@ -145,13 +201,11 @@ function crearSemifinals(){
 
 
     </div>
+
     `;
 
 
-	inicializarBloqueo(aside);
-
-	const partidos = aside.querySelectorAll(".partido-eliminatoria");
-
+    const partidos = aside.querySelectorAll(".semifinal-partido");
 
 	partidos.forEach(partido => {
 
@@ -162,11 +216,35 @@ function crearSemifinals(){
 
 	});
 
+
+	const penaltis = aside.querySelectorAll(".semifinal-penal");
+
+	penaltis.forEach(penal => {
+
+		penal.addEventListener(
+			"input",
+			() => {
+
+				const semifinal =
+					penal.closest(".semifinal");
+
+
+				const partido =
+					semifinal.querySelector(".semifinal-partido");
+
+
+				controlarEstadoEliminatoria(partido);
+
+			}
+		);
+
+	});
+
     return aside;
 
 }
 
-function crearFinal(){
+function crearFinal() {
 
     const div = document.createElement("div");
 
@@ -175,59 +253,80 @@ function crearFinal(){
 
     div.innerHTML = `
 
-    <div class="cabecera-grupo">
+        <div class="cabecera-grupo">
 
-        <h2>Final</h2>
+            <h2>Final</h2>
 
-        <button
-            class="btn-bloqueo"
-            title="Bloquear final">
-            🔓
-        </button>
-
-    </div>
+        </div>
 
 
-    <div class="fase-final">
+        <div class="final-zona-partit">
 
 
-        <div class="partido partido-eliminatoria">
+            <div class="final-partido" data-final="f1">
 
 
-            <div class="equipo local" data-origen="s1">
+                <div class="final-equipo final-local"
+                     data-origen="s1">
 
-                <span>Guanyador S1</span>
+                    <span>Guanyador S1</span>
+
+                    <img class="final-escut"
+                         src=""
+                         alt=""
+                         hidden>
+
+                </div>
+
+
+                <div class="final-marcador">
+
+                    <input type="number"
+                           class="final-gol final-gol-local"
+                           min="0"
+                           disabled>
+
+                    <span>-</span>
+
+                    <input type="number"
+                           class="final-gol final-gol-visitante"
+                           min="0"
+                           disabled>
+
+                </div>
+
+
+                <div class="final-equipo final-visitante"
+                     data-origen="s2">
+
+                    <img class="final-escut"
+                         src=""
+                         alt=""
+                         hidden>
+
+                    <span>Guanyador S2</span>
+
+                </div>
+
 
             </div>
 
 
-            <div class="marcador">
+            <div class="final-penaltis oculto">
 
-                <input type="number" class="gol gol-local" min="0" disabled>
+                <span class="final-icono">🎯</span>
+
+                <input type="number"
+                       class="final-penal final-penal-local"
+                       min="0"
+                       disabled>
 
                 <span>-</span>
 
-                <input type="number" class="gol gol-visitante" min="0" disabled>
-
-            </div>
-
-
-            <div class="equipo visitante" data-origen="s2">
-
-                <span>Guanyador S2</span>
-
-            </div>
-
-
-            <div class="penaltis oculto">
-
-                <span class="icono">🎯</span>
-
-                <input type="number" class="penal penal-local" min="0" disabled>
-
-                -
-
-                <input type="number" class="penal penal-visitant" min="0" disabled>
+                <input type="number"
+                       class="final-penal final-penal-visitante"
+                       min="0"
+                       disabled>
 
             </div>
 
@@ -235,22 +334,49 @@ function crearFinal(){
         </div>
 
 
-    </div>
+        <div class="campio campio-escondit">
+
+            <div class="campio-titol">
+
+                🏆 Campió
+
+            </div>
+
+
+            <img class="campio-escut"
+                 src=""
+                 alt=""
+                 hidden>
+
+
+            <div class="campio-nom">
+
+                Pendent de final
+
+            </div>
+
+        </div>
 
     `;
 
 
-    inicializarBloqueo(div);
-
-
-    const partido =
-        div.querySelector(".partido-eliminatoria");
-
+    const partido = div.querySelector(".final-partido");
 
     partido.addEventListener(
         "input",
-        () => controlarEstadoEliminatoria(partido)
+        () => controlarEstadoFinal(partido)
     );
+
+
+    div.querySelectorAll(".final-penal")
+        .forEach(campo => {
+
+            campo.addEventListener(
+                "input",
+                () => controlarEstadoFinal(partido)
+            );
+
+        });
 
 
     return div;
@@ -260,17 +386,18 @@ function crearFinal(){
 function actualizarEquipoFaseFinal(origen, equipo) {
 
     const destino = document.querySelector(
-        `.equipo[data-origen="${origen}"]`
+        `.semifinal-equipo[data-origen="${origen}"]`
     );
 
     if (!destino || !equipo)
         return;
 
-
+	//console.log("destino ", destino);
+	//console.log("equipo ", equipo);
+	
     destino.dataset.equipo =
         JSON.stringify(equipo);
-
-
+	
     destino.innerHTML = `
 
         <img src="${equipo.escut}" alt="${equipo.nom}">
@@ -279,17 +406,19 @@ function actualizarEquipoFaseFinal(origen, equipo) {
 
     `;
 
+	//console.log("paso inner");
 
     const partido =
-        destino.closest(".partido-eliminatoria");
+        destino.closest(".semifinal-partido");
 
+	//console.log("partido ", partido);
 
     if (!partido)
         return;
 
 
     const equipos =
-        partido.querySelectorAll(".equipo");
+        partido.querySelectorAll(".semifinal-equipo");
 
 
     const tieneEquipos =
@@ -304,7 +433,6 @@ function actualizarEquipoFaseFinal(origen, equipo) {
     }
 
 }
-
 
 function actualizarGuanyadorGrup(grupHTML, classificacio) {
 
@@ -333,34 +461,29 @@ function actualizarGuanyadorGrup(grupHTML, classificacio) {
 
 }
 
-
 function controlarEstadoEliminatoria(partido) {
 
-
     const goles =
-        partido.querySelectorAll(".gol");
-
+        partido.querySelectorAll(".semifinal-gol");
 
     const gl =
         parseInt(goles[0].value);
 
-
     const gv =
         parseInt(goles[1].value);
-
 
     if (isNaN(gl) || isNaN(gv)) {
         return;
     }
 
+	const semi =
+		partido.closest(".semifinal");
 
-    const bloquePenaltis =
-        partido.querySelector(".penaltis");
+	const bloquePenaltis =
+		semi.querySelector(".semifinal-penaltis");
 
-
-    const camposPenal =
-        partido.querySelectorAll(".penal");
-
+	const camposPenal =
+		semi.querySelectorAll(".semifinal-penal");
 
     // =====================
     // EMPATE
@@ -375,6 +498,9 @@ function controlarEstadoEliminatoria(partido) {
 
 		const pl = parseInt(camposPenal[0].value);
 		const pv = parseInt(camposPenal[1].value);
+
+		//console.log("pl ", pl);
+		//console.log("pv ", pv);
 
 		// Todavía no hay tanda completa
 		// Control visual de penaltis empatados
@@ -421,10 +547,9 @@ function controlarEstadoEliminatoria(partido) {
 
 }
 
-
 function habilitarPenaltisEliminatoria(partido){
 
-    partido.querySelectorAll(".penal")
+    partido.querySelectorAll(".semifinal-penal")
         .forEach(p => {
             p.disabled=false;
         });
@@ -433,7 +558,7 @@ function habilitarPenaltisEliminatoria(partido){
 
 function deshabilitarPenaltisEliminatoria(partido){
 
-    partido.querySelectorAll(".penal")
+    partido.querySelectorAll(".semifinal-penal")
         .forEach(p => {
             p.disabled=true;
             p.value="";
@@ -444,28 +569,26 @@ function deshabilitarPenaltisEliminatoria(partido){
 function controlarEquiposEliminatoria(partido) {
 
     const local =
-        partido.querySelector(".local").dataset.equipo;
+        partido.querySelector(".semifinal-local").dataset.equipo;
 
 
     const visitante =
-        partido.querySelector(".visitante").dataset.equipo;
+        partido.querySelector(".semifinal-visitante").dataset.equipo;
 
 
     const activo =
         local && visitante;
 
 
-    partido.querySelectorAll(".gol")
+    partido.querySelectorAll(".semifinal-gol")
         .forEach(campo => {
-
             campo.disabled = !activo;
 
         });
 
 
     if (!activo) {
-
-        partido.querySelectorAll(".penal")
+        partido.querySelectorAll(".semifinal-penal")
             .forEach(campo => {
 
                 campo.disabled = true;
@@ -479,19 +602,35 @@ function controlarEquiposEliminatoria(partido) {
 
 function habilitarGolesEliminatoria(partido){
 
-    partido.querySelectorAll(".gol")
+    partido.querySelectorAll(".semifinal-gol")
         .forEach(campo => {
 
             campo.disabled = false;
 
         });
 
+    const semi =
+        partido.closest(".semifinal");
+
+	//console.log("semi", semi);
+
+    semi.querySelectorAll(".semifinal-penal")
+        .forEach(campo => {
+
+            campo.disabled = true;
+            campo.value = "";
+
+        });
+
+    semi.querySelector(".semifinal-penaltis")
+        .classList.add("oculto");
+
 }
 
 function actualizarGanadorSemifinal(origen, equipo) {
 
     const destino = document.querySelector(
-        `#final .equipo[data-origen="${origen}"]`
+        `#semifinals .semifinal-equipo[data-origen="${origen}"]`
     );
 
 
@@ -512,14 +651,14 @@ function actualizarGanadorSemifinal(origen, equipo) {
     `;
 
 
-    const partidoFinal =
-        destino.closest(".partido-eliminatoria");
+    const partidoSemi =
+        destino.closest(".semifinal-partido");
 
 
-    if (partidoFinal) {
+    if (partidoSemi) {
 
         const equipos =
-            partidoFinal.querySelectorAll(".equipo");
+            partidoSemi.querySelectorAll(".semifinal-equipo");
 
 
         if (
@@ -527,7 +666,7 @@ function actualizarGanadorSemifinal(origen, equipo) {
             equipos[1].dataset.equipo
         ) {
 
-            habilitarGolesEliminatoria(partidoFinal);
+            habilitarGolesEliminatoria(partidoSemi);
 
         }
 
@@ -538,25 +677,17 @@ function actualizarGanadorSemifinal(origen, equipo) {
 function obtenerGanadorEliminatoria(partido) {
 
 
-
     const local =
-        partido.querySelector(".local");
+        partido.querySelector(".semifinal-local");
 
 
     const visitante =
-        partido.querySelector(".visitante");
+        partido.querySelector(".semifinal-visitante");
 
 
-	console.log(
-		"LOCAL DATA",
-		local.dataset.equipo
-	);
+    if (!local || !visitante)
+        return null;
 
-	console.log(
-		"VISITANTE DATA",
-		visitante.dataset.equipo
-	);
-	
 
     if (!local.dataset.equipo ||
         !visitante.dataset.equipo) {
@@ -576,7 +707,11 @@ function obtenerGanadorEliminatoria(partido) {
 
 
     const goles =
-        partido.querySelectorAll(".gol");
+        partido.querySelectorAll(".semifinal-gol");
+
+
+    if (goles.length < 2)
+        return null;
 
 
     const gl =
@@ -593,6 +728,8 @@ function obtenerGanadorEliminatoria(partido) {
 
 
 
+    // Victoria por goles
+
     if (gl > gv)
         return equipoLocal;
 
@@ -602,8 +739,24 @@ function obtenerGanadorEliminatoria(partido) {
 
 
 
+    // Empate -> mirar penaltis
+
+    const semi =
+        partido.closest(".semifinal");
+
+
+    if (!semi)
+        return null;
+
+
+
     const penales =
-        partido.querySelectorAll(".penal");
+        semi.querySelectorAll(".semifinal-penal");
+
+
+    if (penales.length < 2)
+        return null;
+
 
 
     const pl =
@@ -621,19 +774,22 @@ function obtenerGanadorEliminatoria(partido) {
 
 
     if (pl > pv)
-    return equipoLocal;
+        return equipoLocal;
 
 
-	if (pv > pl)
-		return equipoVisitante;
+    if (pv > pl)
+        return equipoVisitante;
 
 
-	// Penaltis empatados: no hay ganador todavía
-	return null;
+
+    // Penaltis empatados
+    return null;
 
 }
 
 function comprobarGanadorEliminatoria(partido) {
+
+	//console.log("comprobarGanadorEliminatoria(partido) ", partido);
 
 
     if (!partido.dataset.semifinal) {
@@ -665,12 +821,17 @@ function comprobarGanadorEliminatoria(partido) {
         ganador
     );
 
+	actualizarFinalista(
+		partido.dataset.semifinal,
+		ganador
+	);
+
 }
 
 function limpiarGanadorSemifinal(origen) {
 
     const destino = document.querySelector(
-        `#final .equipo[data-origen="${origen}"]`
+        `#final .semifinal-equipo[data-origen="${origen}"]`
     );
 
     if (!destino)
@@ -686,7 +847,385 @@ function limpiarGanadorSemifinal(origen) {
 
 }
 
+function actualizarFinalista(origen, equipo) {
 
+
+    const destino = document.querySelector(
+        `#final .final-equipo[data-origen="${origen}"]`
+    );
+
+
+    if (!destino || !equipo) {
+
+        console.log("No se puede actualizar finalista");
+        return;
+
+    }
+
+
+    destino.dataset.equipo =
+        JSON.stringify(equipo);
+
+
+    destino.innerHTML = `
+
+        <img src="${equipo.escut}" alt="${equipo.nom}">
+
+        <span>${equipo.nom}</span>
+
+    `;
+
+
+    const partidoFinal =
+        destino.closest(".final-partido");
+
+
+    if (!partidoFinal)
+        return;
+
+
+    const equipos =
+        partidoFinal.querySelectorAll(".final-equipo");
+
+
+    // Cuando estén los dos finalistas
+    if (
+        equipos[0].dataset.equipo &&
+        equipos[1].dataset.equipo
+    ) {
+
+        habilitarGolesFinal(partidoFinal);
+
+    }
+
+}
+
+function habilitarGolesFinal(partido) {
+
+
+    partido.querySelectorAll(".final-gol")
+        .forEach(campo => {
+
+            campo.disabled = false;
+
+        });
+
+
+    const final =
+        partido.closest(".final");
+
+
+    if (!final)
+        return;
+
+
+    final.querySelectorAll(".final-penal")
+        .forEach(campo => {
+
+            campo.disabled = true;
+            campo.value = "";
+
+            campo.classList.remove("penal-error");
+
+        });
+
+
+    const penaltis =
+        final.querySelector(".final-penaltis");
+
+
+    if (penaltis) {
+
+        penaltis.classList.add("oculto");
+
+    }
+
+}
+
+function controlarEstadoFinal(partido) {
+
+
+    const goles =
+        partido.querySelectorAll(".final-gol");
+
+
+    const gl =
+        parseInt(goles[0].value);
+
+
+    const gv =
+        parseInt(goles[1].value);
+
+
+    if (isNaN(gl) || isNaN(gv)) {
+        return;
+    }
+
+
+    const final =
+        partido.closest(".final");
+
+
+    const bloquePenaltis =
+        final.querySelector(".final-penaltis");
+
+
+    const camposPenal =
+        final.querySelectorAll(".final-penal");
+
+
+    // =====================
+    // EMPATE
+    // =====================
+
+    if (gl === gv) {
+
+
+        bloquePenaltis.classList.remove("oculto");
+
+
+        camposPenal.forEach(campo => {
+
+            campo.disabled = false;
+
+        });
+
+
+        const pl =
+            parseInt(camposPenal[0].value);
+
+
+        const pv =
+            parseInt(camposPenal[1].value);
+
+
+
+        if (!isNaN(pl) && !isNaN(pv)) {
+
+
+            if (pl === pv) {
+
+
+                camposPenal.forEach(campo => {
+
+                    campo.classList.add("penal-error");
+
+                });
+
+
+            } else {
+
+
+                camposPenal.forEach(campo => {
+
+                    campo.classList.remove("penal-error");
+
+                });
+
+
+            }
+
+        }
+
+
+        comprobarGanadorFinal(partido);
+
+        return;
+
+    }
+
+
+
+    // =====================
+    // HAY GANADOR
+    // =====================
+
+
+    bloquePenaltis.classList.add("oculto");
+
+
+    camposPenal.forEach(campo => {
+
+        campo.disabled = true;
+        campo.value = "";
+
+        campo.classList.remove("penal-error");
+
+    });
+
+	camposPenal.forEach(campo => {
+		campo.classList.remove("penal-error");
+	});
+
+    comprobarGanadorFinal(partido);
+
+
+}
+
+function comprobarGanadorFinal(partido) {
+
+    const ganador =
+        obtenerGanadorFinal(partido);
+
+	console.log("GANADOR FINAL:", ganador);
+	
+    const campio =
+        document.querySelector(".campio");
+    console.log("CAMPIÓ:", campio);
+	// No hay campeón todavía
+    if (!ganador) {
+        if (campio) {
+            campio.classList.add("campio-escondit");
+        }
+        return;
+    }
+	
+	console.log("LLAMANDO A ACTUALIZAR CAMPIO");
+    actualizarCampio(ganador);
+}
+
+function obtenerGanadorFinal(partido) {
+
+
+    const local =
+        partido.querySelector(".final-local");
+
+
+    const visitante =
+        partido.querySelector(".final-visitante");
+
+
+    if (!local.dataset.equipo ||
+        !visitante.dataset.equipo) {
+
+        return null;
+
+    }
+
+
+    const equipoLocal =
+        JSON.parse(local.dataset.equipo);
+
+
+    const equipoVisitante =
+        JSON.parse(visitante.dataset.equipo);
+
+
+
+    const goles =
+        partido.querySelectorAll(".final-gol");
+
+
+    const gl =
+        parseInt(goles[0].value);
+
+
+    const gv =
+        parseInt(goles[1].value);
+
+
+
+    if (isNaN(gl) || isNaN(gv)) {
+
+        return null;
+
+    }
+
+
+
+    if (gl > gv) {
+
+        return equipoLocal;
+
+    }
+
+
+    if (gv > gl) {
+
+        return equipoVisitante;
+
+    }
+
+
+
+    // Empate: mirar penaltis
+
+    const final =
+        partido.closest(".final");
+
+
+    const penaltis =
+        final.querySelectorAll(".final-penal");
+
+
+
+    const pl =
+        parseInt(penaltis[0].value);
+
+
+    const pv =
+        parseInt(penaltis[1].value);
+
+
+
+    if (isNaN(pl) || isNaN(pv)) {
+
+        return null;
+
+    }
+
+
+
+    if (pl > pv) {
+
+        return equipoLocal;
+
+    }
+
+
+    if (pv > pl) {
+
+        return equipoVisitante;
+
+    }
+
+
+
+    // Penaltis empatados, todavía no hay campeón
+
+    return null;
+
+}
+
+function actualizarCampio(equipo) {
+
+    const bloque =
+        document.querySelector(".campio");
+
+    if (!bloque || !equipo)
+        return;
+
+    const escut =
+        bloque.querySelector(".campio-escut");
+
+    const nom =
+        bloque.querySelector(".campio-nom");
+
+    escut.src =
+        equipo.escut;
+
+    escut.alt =
+        equipo.nom;
+
+    escut.hidden = false;
+
+    nom.textContent =
+        equipo.nom;
+
+    bloque.classList.remove(
+        "campio-escondit"
+    );
+}
 
 /*function crearGrups() {
 
@@ -1227,10 +1766,10 @@ function actualitzarCalendari(grupHTML, grupConfig) {
 
 	}
 
-	console.log(
+	/*console.log(
     "Ganador P1:", guanyador,
     "Perdedor P1:", perdedor
-	);
+	);*/
 
 	const partit2 =
 		grupHTML.querySelector('.partido[data-id="2"]');
@@ -1255,7 +1794,7 @@ function actualitzarCalendari(grupHTML, grupConfig) {
 
 function actualitzarEquipPartit(partit, equip, numeroEquip) {
 
-    console.log("Actualizando partido", partit.dataset.id);
+    //console.log("Actualizando partido", partit.dataset.id);
 
 
     const equipoActual =
@@ -1353,7 +1892,7 @@ function obtenirEscenariP2(grupHTML) {
 
 function necesitaPenaltisPartido2(grupHTML, grupConfig) {
 
-    console.log("Evaluando necesidad de penaltis P2");
+    //console.log("Evaluando necesidad de penaltis P2");
 
     const escenario = obtenirEscenariP2(grupHTML);
 
@@ -1369,10 +1908,10 @@ function necesitaPenaltisPartido2(grupHTML, grupConfig) {
         VV: true
     };
 
-    console.log(
+    /*console.log(
         "Escenario:", escenario,
         "Penaltis:", necessita[escenario]
-    );
+    );*/
 
     return necessita[escenario];
 
@@ -1413,10 +1952,10 @@ function necesitaPenaltisPartido3(grupHTML, grupConfig) {
 
     const escenario = obtenirEscenariP3(grupHTML);
 
-    console.log(
+    /*console.log(
         "Escenario P3:",
         escenario
-    );
+    );*/
 
 
     const tabla = {
@@ -1501,9 +2040,9 @@ function necesitaPenaltisPartido3(grupHTML, grupConfig) {
     }
 
 
-    console.log(
+    /*console.log(
         "P3 NO necesita penaltis"
-    );
+    );*/
 
     return false;
 
