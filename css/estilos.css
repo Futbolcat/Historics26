@@ -11,9 +11,8 @@ body{
 }
 
 header{
-    /*background:#0c3c78;*/
-	background:#FFD700;
-    color:#563d04;
+    background:#FFD93E;
+    color:#CF2732;
     padding:15px 30px;
     display:flex;
     align-items:center;
@@ -21,17 +20,34 @@ header{
 }
 
 header h1{
-    flex:1;
-    text-align:center;
     margin:0;
     font-size:32px;
+}
+
+.titulo-header {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    flex:1;
+}
+
+.enlace-plantilles {
+    color:#CF2732;
+    text-decoration:none;
+    font-size:18px;
+    margin-top:10px;
+}
+
+.enlace-plantilles:hover {
+    text-decoration:underline;
 }
 
 .logo-container{
     width:70px;
     height:70px;
-    background:#FFF9D9;
-    border-radius:50%;
+    /*background:#FFF9D9;
+    border-radius:50%;*/
     display:flex;
     justify-content:center;
     align-items:center;
@@ -39,9 +55,10 @@ header h1{
 }
 
 .logo{
-    max-width:75%;
-    max-height:75%;
+    max-width:100%;
+    max-height:100%;
     object-fit:contain;
+    flex-shrink:0;
 }
 
 .contenedor{
@@ -69,8 +86,7 @@ header h1{
     display:flex;
     align-items:center;
     justify-content:center;
-    /*background:#1f6ed4;*/
-	background:#815a01;
+	background:#CF2732;
     color:white;
     padding:14px;
 }
@@ -81,42 +97,39 @@ header h1{
     font-size:22px;
 }
 
-.btn-bloqueo {
-    position:absolute;
-    right:15px;
-    border:none;
-    background:transparent;
-    color:white;
-    cursor:pointer;
-    font-size:24px;
-    line-height:1;
-    padding:0;
-}
+/* =========================
+   BLOQUEOS CONFIG
+========================= */
 
-.btn-bloqueo.bloqueado {
-    cursor: default;
-    opacity: 0.8;
-}
-
-.grupo-bloqueado {
+.grupo-bloqueado{
     position:relative;
+	color:#767676;
 }
 
+/* Campos bloqueados */
+.grupo-bloqueado input{
+    cursor:not-allowed;
+	color:#767676;
+}
+
+/* Zonas donde no se puede interactuar */
 .grupo-bloqueado .partidos,
-.grupo-bloqueado .fase-final {
+.grupo-bloqueado .fase-final{
     pointer-events:none;
-    opacity:0.65;
+    opacity:0.75;
 }
 
-.grupo-bloqueado .clasificacion {
-    opacity:0.8;
+/* Tabla clasificación */
+.grupo-bloqueado .clasificacion{
+    opacity:0.75;
 }
 
-.grupo-bloqueado .clasificacion tbody tr:hover {
-    background-color: transparent;
+/* Evitar efectos hover al estar bloqueado */
+.grupo-bloqueado .clasificacion tbody tr:hover{
+    background-color:transparent;
 }
 
-.grupo-bloqueado .clasificacion tbody tr:first-child:hover {
+.grupo-bloqueado .clasificacion tbody tr:first-child:hover{
     background:#ffe412;
 }
 
@@ -135,10 +148,11 @@ header h1{
 }
 
 .clasificacion th{
-    background:#fdc035;
-    /*border-bottom:1px solid #b37c00;*/
-	border-bottom:1px solid #FDC035;
-	color: #8f6300;
+    background: #FFD93E;
+    border-bottom:1px solid #CF2732;
+	/*border-bottom:1px solid #FDC035;*/
+	/*color: #8f6300;*/
+	color: #CF2732;
 }
 
 /* Primera columna: equipo */
@@ -155,14 +169,16 @@ header h1{
 }
 
 .clasificacion tbody tr:first-child{
-    background:#ffe412;
+    /*background:#ffe412;*/
+	background: #FFECA1;
     font-weight:bold;
-	color: #8f6313;
+	/*color: #8f6313;*/
+	color: #CF2732;
 }
 
 .clasificacion tbody tr:last-child td{
-    /*border-bottom:1px solid #b0b8c5;*/
-	border-bottom:1px solid #b58009;
+    border-bottom:1px solid #CF2732;
+	/*border-bottom:1px solid #b58009;*/
 }
 
 .equip-classificacio{
@@ -188,7 +204,8 @@ header h1{
     align-items:center;
     gap:4px;
     padding:6px 0;
-    border-bottom:1px solid #fdcc5d;
+    /*border-bottom:1px solid #fdcc5d;*/
+	border-bottom:1px solid #FFD93E;
 }
 
 .equipo{
@@ -317,7 +334,7 @@ header h1{
 }
 
 .semifinales .semifinal:first-child{
-    border-bottom:1px solid #fdcc5d;
+    border-bottom:1px solid #CF2732;
 }
 
 .semifinal-partido{
@@ -417,32 +434,6 @@ header h1{
     text-align:center;
 }
 
-/*==========================
-    PENALTIS
-==========================*/
-
-/*.penaltis-eliminatoria {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:6px;
-    padding-bottom:15px;
-}
-
-
-.penaltis-eliminatoria .icono {
-    font-size:20px;
-    margin-right:5px;
-}
-
-
-.penaltis-eliminatoria .penal {
-    width:35px;
-    height:28px;
-    font-size:16px;
-}*/
-
-
 /* =========================
    FINAL
 ========================= */
@@ -456,7 +447,7 @@ header h1{
 
 .final-zona-partit{
     padding:10px;
-    border-bottom:1px solid #fdcc5d;
+    border-bottom:1px solid #CF2732;
 }
 
 .final-partido{
@@ -558,6 +549,10 @@ header h1{
     padding:20px;
 }
 
+.campio-escondit{
+    display:none !important;
+}
+
 .campio-titol{
     font-size:30px;
     font-weight:bold;
@@ -575,28 +570,164 @@ header h1{
     font-size:28px;
     font-weight:bold;
     text-align:center;
+	color: #CF2732;
+}
+
+/* Quitar flechas de inputs tipo number */
+
+/* Chrome, Edge, Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 
+/*======================
+    MÒVIL
+======================*/
+
+@media (max-width:750px){
+
+    /* Layout principal */
+    .grupos,
+    .contenedor {
+        grid-template-columns:1fr;
+    }
 
 
-@media (max-width: 600px) {
+    /* Header */
+    header {
+        flex-direction:row;
+        padding:8px;
+        gap:5px;
+    }
 
-    .btn-bloqueo {
-        font-size: 30px;
-        padding: 8px;
+
+    .logo-container {
+        flex:0 0 auto;
+        padding:0;
+    }
+
+
+    .logo {
+        max-width:35px;
+        max-height:35px;
+    }
+
+
+    .titulo-header {
+        flex:1;
+        min-width:0;
+        order:0;
+    }
+
+
+    header h1 {
+        font-size:17px;
+        line-height:1.1;
+    }
+
+
+    .enlace-plantilles {
+        font-size:11px;
+        margin-top:2px;
+    }
+
+
+    /* Tarjetas */
+    .grupo {
+        width:100%;
+    }
+
+
+    /* Clasificación */
+    .clasificacion {
+        font-size:14px;
+		table-layout: fixed;
+		width: 100%;
+    }
+
+
+    .clasificacion th,
+    .clasificacion td {
+        padding:5px 3px;
+    }
+
+	.clasificacion th:first-child,
+	.clasificacion td:first-child {
+		width: 50%;
+		text-align: left;
+	}
+
+	.clasificacion th:not(:first-child),
+	.clasificacion td:not(:first-child) {
+		width: 10%;
+		text-align: center;
+	}
+
+
+    /* Marcadores */
+    .gol,
+    .penal {
+        width:45px;
+    }
+
+}
+@media (max-width:360px){
+
+    header h1 {
+        font-size:14px;
     }
 
 }
 
 @media (max-width:750px){
 
-    .grupos{
-        grid-template-columns:1fr;
+    .contenedor {
+        display:flex;
+        flex-direction:column;
+        gap:15px;
+        padding:0 10px;
     }
 
-	.contenedor{
-        grid-template-columns:1fr;
+    .grupo:nth-of-type(2){
+        order:1; /* Dilluns */
     }
 
+    .grupo:nth-of-type(3){
+        order:2; /* Dimarts */
+    }
+
+    .grupo:nth-of-type(4){
+        order:3; /* Dimecres */
+    }
+
+    .grupo:nth-of-type(5){
+        order:4; /* Dijous */
+    }
+
+
+    .semifinales{
+        order:5;
+    }
+
+
+    .final{
+        order:6;
+    }
+
+	.partido .equipo span {
+			display:none;
+		}
+
+		.partido .equipo img {
+			width:35px;
+			height:35px;
+		}
 }
