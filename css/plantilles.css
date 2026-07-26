@@ -238,7 +238,7 @@
     .logo { max-width:35px; max-height:35px;}
     .titulo-header { flex:1; min-width:0; order:0;}
     header h1 { font-size:17px; line-height:1.1;}
-    .enlace-plantilles { font-size:11px; margin-top:2px;}
+    .enlace-torneig { font-size:11px; margin-top:4px;}
 	
 	 .controles {
         margin-bottom: 5px;
@@ -399,4 +399,12 @@
     #tablaDatosPrincipal td:nth-child(6) {
         text-align: center !important;
     }
+}
+
+@media (max-width:360px){
+
+    header h1 {
+        font-size:14px;
+    }
+
 }
