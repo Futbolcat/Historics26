@@ -2,13 +2,9 @@ window.addEventListener("DOMContentLoaded", iniciar);
 
 function iniciar() {
 
-	//console.log("Iniciando...");
-    carregarConfiguracio();
-
-    //crearGrups();
+	carregarConfiguracio();
 	crearTorneig()
-    //crearSemifinals();
-
+	cargarResultados();
 }
 
 function carregarConfiguracio() {
@@ -38,6 +34,474 @@ function crearTorneig(){
     contenedor.appendChild(crearGrup(CONFIG.grups[3])); // Dijous
 
     contenedor.appendChild(crearFinal());
+
+}
+
+function cargarResultados() {
+
+    CONFIG.grups.forEach((grupConfig, indiceGrup) => {
+		
+        const datos = CONFIG.resultados?.grups?.[indiceGrup];
+
+        if (!datos)
+            return;
+
+        const grupo = document.querySelector(
+            `.grupo[data-grup="${indiceGrup}"]`
+        );
+
+        if (!grupo)
+            return;
+
+
+        ["p1", "p2", "p3"].forEach((clave, indicePartido) => {
+
+            const resultado = datos[clave];
+
+            if (!resultado)
+                return;
+
+
+            const partido = grupo.querySelector(
+                `.partido[data-id="${indicePartido + 1}"]`
+            );
+
+
+            if (!partido)
+                return;
+
+
+            const esP1 = indicePartido === 0;
+
+
+            const empate =
+                resultado.goles[0] === resultado.goles[1];
+
+            // =====================
+            // Goles
+            // =====================
+
+			const goles = partido.querySelectorAll(".gol");
+
+			goles.forEach(campo => {
+				campo.disabled = false;
+			});
+
+			goles[0].value = resultado.goles[0];
+			goles[1].value = resultado.goles[1];
+
+
+            // =====================
+            // Penaltis
+            // =====================
+
+            const penales = partido.querySelectorAll(".penal");
+
+
+            penales.forEach(campo => {
+
+                campo.classList.remove("penal-error");
+                campo.value = "";
+
+            });
+
+
+            let necesitaPenal = false;
+
+
+            // ---------------------
+            // P1 SIEMPRE necesita tanda
+            // ---------------------
+
+            if (esP1) {
+
+                necesitaPenal = true;
+
+            }
+
+
+            // ---------------------
+            // P2 y P3 según reglamento
+            // ---------------------
+
+            else {
+
+                if (indicePartido === 1) {
+
+                    necesitaPenal =
+                        necesitaPenaltisPartido2(
+                            grupo,
+                            grupConfig
+                        );
+
+                }
+
+
+                if (indicePartido === 2) {
+
+                    necesitaPenal =
+                        necesitaPenaltisPartido3(
+                            grupo,
+                            grupConfig
+                        );
+
+                }
+
+            }
+
+
+
+            if (necesitaPenal) {
+
+
+                habilitarPenals(partido);
+
+                if (resultado.penals) {
+
+
+                    penales[0].value =
+                        resultado.penals[0];
+
+
+                    penales[1].value =
+                        resultado.penals[1];
+
+
+                    if (
+                        resultado.penals[0] ===
+                        resultado.penals[1]
+                    ) {
+						//console.log("penaltis empatados")
+                        penales.forEach(campo => {
+                            campo.classList.add("penal-error");
+                        });
+
+
+                        console.warn(
+                            `Grupo ${indiceGrup + 1} - ${clave}: penaltis empatados`
+                        );
+
+                    }
+
+
+                } else {
+
+
+                    penales.forEach(campo => {
+
+                        campo.classList.add("penal-error");
+
+                    });
+
+
+                    console.warn(
+                        `Grupo ${indiceGrup + 1} - ${clave}: faltan penaltis obligatorios`
+                    );
+
+                }
+
+            } else {
+                if (resultado.penals) {
+
+                    console.warn(
+                        `Grupo ${indiceGrup + 1} - ${clave}: hay penaltis no necesarios`
+                    );
+                }
+                quitarPenaltis(partido);
+            }
+
+            // =====================
+            // Recalcular grupo
+            // =====================
+
+            actualitzarGrup({
+                currentTarget: partido
+            });
+        });
+
+    });
+
+	cargarResultadosSemifinals();
+	cargarResultadosFinal();
+
+}
+
+function cargarResultadosSemifinals() {
+
+    const datos =
+        CONFIG.resultados?.semifinals;
+
+
+    if (!datos)
+        return;
+
+
+    const semifinales = [
+        {
+            id: "s1",
+            origen: "s1"
+        },
+        {
+            id: "s2",
+            origen: "s2"
+        }
+    ];
+
+
+    semifinales.forEach(semiConfig => {
+
+
+        const resultado =
+            datos[semiConfig.id];
+
+
+        if (!resultado)
+            return;
+
+
+        const partido =
+            document.querySelector(
+                `.semifinal-partido[data-semifinal="${semiConfig.id}"]`
+            );
+
+
+        if (!partido)
+            return;
+
+
+        const goles =
+            partido.querySelectorAll(".semifinal-gol");
+
+
+        goles.forEach(campo => {
+
+            campo.disabled = false;
+
+        });
+
+
+        goles[0].value =
+            resultado.goles[0];
+
+
+        goles[1].value =
+            resultado.goles[1];
+
+
+
+        const semifinal =
+            partido.closest(".semifinal");
+
+
+        const penales =
+            semifinal.querySelectorAll(".semifinal-penal");
+
+
+        penales.forEach(campo => {
+
+            campo.value = "";
+            campo.classList.remove("penal-error");
+
+        });
+
+
+
+        const empate =
+            resultado.goles[0] === resultado.goles[1];
+
+
+        if (empate) {
+
+
+            semifinal.querySelector(".semifinal-penaltis")
+                .classList.remove("oculto");
+
+
+            penales.forEach(campo => {
+
+                campo.disabled = false;
+
+            });
+
+
+            if (resultado.penals) {
+
+                penales[0].value =
+                    resultado.penals[0];
+
+
+                penales[1].value =
+                    resultado.penals[1];
+
+
+                if (
+                    resultado.penals[0] ===
+                    resultado.penals[1]
+                ) {
+
+                    penales.forEach(campo => {
+
+                        campo.classList.add("penal-error");
+
+                    });
+
+                }
+
+
+            } else {
+
+
+                penales.forEach(campo => {
+
+                    campo.classList.add("penal-error");
+
+                });
+
+            }
+
+
+        }
+
+
+        controlarEstadoEliminatoria(partido);
+
+
+    });
+
+}
+
+function cargarResultadosFinal() {
+
+    const resultado =
+        CONFIG.resultados?.final;
+
+
+    if (!resultado)
+        return;
+
+
+    const partido =
+        document.querySelector(
+            ".final-partido[data-final='f1']"
+        );
+
+
+    if (!partido)
+        return;
+
+
+    // =====================
+    // Goles
+    // =====================
+
+    const goles =
+        partido.querySelectorAll(".final-gol");
+
+
+    goles.forEach(campo => {
+
+        campo.disabled = false;
+
+    });
+
+
+    goles[0].value =
+        resultado.goles[0];
+
+
+    goles[1].value =
+        resultado.goles[1];
+
+
+
+    // =====================
+    // Penaltis
+    // =====================
+
+    const final =
+        partido.closest(".final");
+
+
+    const penales =
+        final.querySelectorAll(".final-penal");
+
+
+    penales.forEach(campo => {
+
+        campo.value = "";
+        campo.classList.remove("penal-error");
+
+    });
+
+
+
+    const empate =
+        resultado.goles[0] === resultado.goles[1];
+
+
+
+    if (empate) {
+
+
+        const bloque =
+            final.querySelector(".final-penaltis");
+
+
+        bloque.classList.remove("oculto");
+
+
+        penales.forEach(campo => {
+
+            campo.disabled = false;
+
+        });
+
+
+
+        if (resultado.penals) {
+
+
+            penales[0].value =
+                resultado.penals[0];
+
+
+            penales[1].value =
+                resultado.penals[1];
+
+
+
+            if (
+                resultado.penals[0] ===
+                resultado.penals[1]
+            ) {
+
+                penales.forEach(campo => {
+
+                    campo.classList.add("penal-error");
+
+                });
+
+            }
+
+
+        } else {
+
+
+            penales.forEach(campo => {
+
+                campo.classList.add("penal-error");
+
+            });
+
+        }
+
+
+    }
+
+
+    // Dejar que la lógica existente decida campeón
+
+    controlarEstadoFinal(partido);
 
 }
 
@@ -240,6 +704,16 @@ function crearSemifinals() {
 
 	});
 
+	if (
+		CONFIG.bloqueos &&
+		CONFIG.bloqueos.semifinals
+	) {
+
+		aplicarBloqueo(aside);
+
+	}
+
+
     return aside;
 
 }
@@ -378,6 +852,14 @@ function crearFinal() {
 
         });
 
+	if (
+		CONFIG.bloqueos &&
+		CONFIG.bloqueos.final
+	) {
+
+		aplicarBloqueo(div);
+
+	}
 
     return div;
 
@@ -385,19 +867,84 @@ function crearFinal() {
 
 function actualizarEquipoFaseFinal(origen, equipo) {
 
+/*console.log(
+    "actualizarEquipoFaseFinal",
+    origen,
+    equipo
+);*/
+
     const destino = document.querySelector(
         `.semifinal-equipo[data-origen="${origen}"]`
     );
 
-    if (!destino || !equipo)
+
+    if (!destino)
         return;
 
-	//console.log("destino ", destino);
-	//console.log("equipo ", equipo);
-	
+
+    // ==========================
+    // LIMPIAR EQUIPO
+    // ==========================
+
+    if (!equipo) {
+
+        destino.dataset.equipo = "";
+
+        destino.innerHTML = `
+            <span class="pendent">
+                Guanyador ${origen.charAt(0).toUpperCase() + origen.slice(1)}
+            </span>
+        `;
+
+
+        const partido =
+            destino.closest(".semifinal-partido");
+
+
+        if (partido) {
+
+            partido.querySelectorAll(".semifinal-gol")
+                .forEach(gol => {
+
+                    gol.value = "";
+                    gol.disabled = true;
+
+                });
+
+
+            partido.querySelectorAll(".semifinal-penal")
+                .forEach(penal => {
+
+                    penal.value = "";
+                    penal.disabled = true;
+
+                });
+
+
+            const penaltis =
+                partido.querySelector(".semifinal-penaltis");
+
+
+            if (penaltis)
+                penaltis.classList.add("oculto");
+
+        }
+
+
+        return;
+
+    }
+
+
+
+    // ==========================
+    // PINTAR EQUIPO
+    // ==========================
+
     destino.dataset.equipo =
         JSON.stringify(equipo);
-	
+
+
     destino.innerHTML = `
 
         <img src="${equipo.escut}" alt="${equipo.nom}">
@@ -406,12 +953,10 @@ function actualizarEquipoFaseFinal(origen, equipo) {
 
     `;
 
-	//console.log("paso inner");
 
     const partido =
         destino.closest(".semifinal-partido");
 
-	//console.log("partido ", partido);
 
     if (!partido)
         return;
@@ -431,33 +976,6 @@ function actualizarEquipoFaseFinal(origen, equipo) {
         habilitarGolesEliminatoria(partido);
 
     }
-
-}
-
-function actualizarGuanyadorGrup(grupHTML, classificacio) {
-
-    if (!classificacio || classificacio.length === 0)
-        return;
-
-
-    const guanyador = classificacio[0];
-
-
-    const numeroGrup = parseInt(grupHTML.dataset.grup);
-
-
-    const origenes = [
-        "dilluns",
-        "dimarts",
-        "dimecres",
-        "dijous"
-    ];
-
-
-    actualizarEquipoFaseFinal(
-        origenes[numeroGrup],
-        guanyador
-    );
 
 }
 
@@ -793,7 +1311,7 @@ function comprobarGanadorEliminatoria(partido) {
 
 
     if (!partido.dataset.semifinal) {
-        console.log("No es semifinal");
+        //console.log("No es semifinal");
         return;
     }
 
@@ -802,10 +1320,10 @@ function comprobarGanadorEliminatoria(partido) {
         obtenerGanadorEliminatoria(partido);
 
 
-    console.log(
+    /*console.log(
         "GANADOR SEMI:",
         ganador
-    );
+    );*/
 
 
     if (!ganador) {
@@ -831,7 +1349,7 @@ function comprobarGanadorEliminatoria(partido) {
 function limpiarGanadorSemifinal(origen) {
 
     const destino = document.querySelector(
-        `#final .semifinal-equipo[data-origen="${origen}"]`
+        `#final .final-equipo[data-origen="${origen}"]`
     );
 
     if (!destino)
@@ -839,11 +1357,76 @@ function limpiarGanadorSemifinal(origen) {
 
 
     destino.innerHTML = `
-        <span>Pendent</span>
+        <span>Guanyador ${origen.toUpperCase()}</span>
     `;
 
 
     delete destino.dataset.equipo;
+
+
+    // También limpiar el partido de la final si ya tenía resultado
+
+    const partidoFinal =
+        destino.closest(".final-partido");
+
+
+    if (partidoFinal) {
+
+        partidoFinal.querySelectorAll(".final-gol")
+            .forEach(gol => {
+
+                gol.value = "";
+                gol.disabled = true;
+
+            });
+
+
+        partidoFinal.querySelectorAll(".final-penal")
+            .forEach(penal => {
+
+                penal.value = "";
+                penal.disabled = true;
+                penal.classList.remove("penal-error");
+
+            });
+
+
+        const penaltis =
+            partidoFinal.closest(".final")
+            .querySelector(".final-penaltis");
+
+
+        if (penaltis) {
+            penaltis.classList.add("oculto");
+        }
+
+    }
+
+	const campio =
+		document.querySelector(".campio");
+
+	if (campio) {
+
+		campio.classList.add("campio-escondit");
+
+		const escut =
+			campio.querySelector(".campio-escut");
+
+		const nom =
+			campio.querySelector(".campio-nom");
+
+
+		if (escut) {
+			escut.src = "";
+			escut.hidden = true;
+		}
+
+
+		if (nom) {
+			nom.textContent = "Pendent de final";
+		}
+
+	}
 
 }
 
@@ -857,7 +1440,7 @@ function actualizarFinalista(origen, equipo) {
 
     if (!destino || !equipo) {
 
-        console.log("No se puede actualizar finalista");
+        //console.log("No se puede actualizar finalista");
         return;
 
     }
@@ -1067,11 +1650,11 @@ function comprobarGanadorFinal(partido) {
     const ganador =
         obtenerGanadorFinal(partido);
 
-	console.log("GANADOR FINAL:", ganador);
+	//console.log("GANADOR FINAL:", ganador);
 	
     const campio =
         document.querySelector(".campio");
-    console.log("CAMPIÓ:", campio);
+    //console.log("CAMPIÓ:", campio);
 	// No hay campeón todavía
     if (!ganador) {
         if (campio) {
@@ -1080,7 +1663,7 @@ function comprobarGanadorFinal(partido) {
         return;
     }
 	
-	console.log("LLAMANDO A ACTUALIZAR CAMPIO");
+	//console.log("LLAMANDO A ACTUALIZAR CAMPIO");
     actualizarCampio(ganador);
 }
 
@@ -1252,12 +1835,6 @@ function crearGrup(grup) {
 
             <h2>${grup.dia}</h2>
 
-            <button 
-                class="btn-bloqueo"
-                title="Bloquear jornada">
-                🔓
-            </button>
-
         </div>
 
         <table class="clasificacion">
@@ -1280,38 +1857,20 @@ function crearGrup(grup) {
     `;
 
 
-   /* const boton = article.querySelector(".btn-bloqueo");
-
-    boton.addEventListener("click", () => {
-
-        const bloqueado = article.dataset.bloqueado === "true";
-
-        article.dataset.bloqueado = !bloqueado;
-
-        if (!bloqueado) {
-
-            boton.textContent = "🔒";
-            boton.title = "Desbloquear jornada";
-
-            boton.classList.add("bloqueado");
-            article.classList.add("grupo-bloqueado");
-
-        } else {
-
-            boton.textContent = "🔓";
-            boton.title = "Bloquear jornada";
-
-            boton.classList.remove("bloqueado");
-            article.classList.remove("grupo-bloqueado");
-
-        }
-
-    });*/
-
-	inicializarBloqueo(article);
+	//inicializarBloqueo(article);
     
 	crearClasificacion(article, grup);
     crearEnfrontaments(article, grup);
+
+	if (
+		CONFIG.bloqueos &&
+		CONFIG.bloqueos.grups[indiceGrupo]
+	) {
+
+		aplicarBloqueo(article);
+
+	}
+
 
     return article;
 
@@ -1439,7 +1998,15 @@ function crearEnfrontaments(article, grup){
         `;
 
         div.appendChild(html);
+		html.removeEventListener("input", actualitzarGrup);
 		html.addEventListener("input", actualitzarGrup);
+		
+		/*console.log(
+			"LISTENER AÑADIDO",
+			grup?.nom,
+			partit.id
+		);*/
+		
 		if (partit.id !== 1) {
 
 			html.querySelectorAll(".gol").forEach(campo => {
@@ -1452,12 +2019,15 @@ function crearEnfrontaments(article, grup){
 
 		}
     });
-
 }
 
 function actualitzarGrup(evento) {
 
-    //console.log("ENTRA actualitzarGrup");
+	/*console.log(
+		"CAMBIO",
+		evento.target.className,
+		evento.target.value
+	);*/
 
     const grupHTML =
         evento.currentTarget.closest(".grupo");
@@ -1475,12 +2045,8 @@ function actualitzarGrup(evento) {
 
 function controlarEstadoPartidos(grupHTML, grupConfig) {
 
-	//console.log("ENTRA controlarEstadoPartidos");
-
     const p1 = grupHTML.querySelector('.partido[data-id="1"]');
-
     const p2 = grupHTML.querySelector('.partido[data-id="2"]');
-
     const p3 = grupHTML.querySelector('.partido[data-id="3"]');
 
     // =========================
@@ -1488,87 +2054,117 @@ function controlarEstadoPartidos(grupHTML, grupConfig) {
     // =========================
 
     if (!tieneResultado(p1)) {
-		//console.log("SALGO: P1 sin resultado");
         return;
     }
 
     habilitarPenals(p1);
 
-    if (!tienePenaltis(p1)) {
-		//console.log("SALGO: P1 penaltis");
-        return;
-    }
+    comprobarEmpatePenaltis(p1);
 
-	//console.log("P1 COMPLETO. HABILITO P2");	
+	// Comprobamos si P1 se decide por goles
+	const golesP1 = p1.querySelectorAll(".gol");
 
-    // Aquí ya sabemos ganador/perdedor P1
+	const golesLocalP1 = parseInt(golesP1[0].value);
+	const golesVisitantP1 = parseInt(golesP1[1].value);
+
+
+	// Si hay empate, obligatoriamente necesitamos ganador por penaltis
+	if (golesLocalP1 === golesVisitantP1) {
+
+		if (!tieneGanadorPenaltis(p1)) {
+
+			//restaurarPartits(grupHTML);
+			actualizarGuanyadorGrup(
+				grupHTML,
+				[]
+			);
+		
+			return;
+		}
+
+	}
+
     const classificacioP1 = calcularClassificacio(
-		grupHTML,
-		grupConfig,
-		1
-	);
+        grupHTML,
+        grupConfig,
+        1
+    );
 
-	const ordenadaP1 = ordenarClassificacio(
-		classificacioP1
-	);
+    const ordenadaP1 = ordenarClassificacio(
+        classificacioP1
+    );
 
-	pintarClassificacio(
-		grupHTML,
-		ordenadaP1
-	);
+    pintarClassificacio(
+        grupHTML,
+        ordenadaP1
+    );
 
-	actualitzarCalendari(
-		grupHTML,
-		grupConfig
-	);
+/*console.log(
+    "ANTES actualizar calendario P2/P3",
+    p2.querySelector(".gol-local").value,
+    p2.querySelector(".gol-visitante").value,
+    p3.querySelector(".gol-local").value,
+    p3.querySelector(".gol-visitante").value
+);*/
 
-	//console.log("P1 terminado. Habilitando P2");
+    actualitzarCalendari(
+        grupHTML,
+        grupConfig
+    );
+
     habilitarGoles(p2);
 
     // =========================
     // PARTIDO 2
     // =========================
 
+
     if (!tieneResultado(p2)) {
-		//console.log("SALGO: P2 sin resultado");
+		quitarPenaltis(p2);
         return;
     }
 
 
-	if (necesitaPenaltisPartido2(
-		grupHTML,
-		grupConfig
-	)) {
+    if (necesitaPenaltisPartido2(
+        grupHTML,
+        grupConfig
+    )) {
 
-		habilitarPenals(p2);
+        habilitarPenals(p2);
+
+        comprobarEmpatePenaltis(p2);
 
 
-		if (!tienePenaltis(p2)) {
-			return;
-		}
+        if (!tienePenaltis(p2)) {
+            return;
+        }
 
-	}
-	else {
+    }
+    else {
 
-		quitarPenaltis(p2);
+        quitarPenaltis(p2);
 
-	}
+    }
 
-	const classificacioP2 = calcularClassificacio(
-		grupHTML,
-		grupConfig,
-		2
-	);
 
-	const ordenadaP2 = ordenarClassificacio(
-		classificacioP2
-	);
+    const classificacioP2 = calcularClassificacio(
+        grupHTML,
+        grupConfig,
+        2
+    );
 
-	pintarClassificacio(
-		grupHTML,
-		ordenadaP2
-	);
-		
+
+    const ordenadaP2 = ordenarClassificacio(
+        classificacioP2
+    );
+
+
+    pintarClassificacio(
+        grupHTML,
+        ordenadaP2
+    );
+
+
     habilitarGoles(p3);
 
 
@@ -1578,53 +2174,73 @@ function controlarEstadoPartidos(grupHTML, grupConfig) {
     // =========================
 
     if (!tieneResultado(p3)) {
+		quitarPenaltis(p3);
         return;
     }
 
+/*console.log(
+    "P3 necesita penaltis:",
+    necesitaPenaltisPartido3(grupHTML, grupConfig)
+);*/
 
-	if (necesitaPenaltisPartido3(
-		grupHTML,
-		grupConfig
-	)) {
+    if (necesitaPenaltisPartido3(
+        grupHTML,
+        grupConfig
+    )) {
 
-		habilitarPenals(p3);
+        habilitarPenals(p3);
+
+        comprobarEmpatePenaltis(p3);
 
 
-		if (!tienePenaltis(p3)) {
-			return;
-		}
+        if (!tienePenaltis(p3)) {
+            return;
+        }
 
-	}
-	else {
+    }
+    else {
 
-		quitarPenaltis(p3);
+        quitarPenaltis(p3);
 
-	}
-	
-	const classificacioP3 = calcularClassificacio(
-		grupHTML,
-		grupConfig,
-		3
-	);
+    }
 
-	const ordenadaP3 = ordenarClassificacio(
-		classificacioP3
-	);
 
-	pintarClassificacio(
-		grupHTML,
-		ordenadaP3
-	);
+    const classificacioP3 = calcularClassificacio(
+        grupHTML,
+        grupConfig,
+        3
+    );
 
-    // Aquí ya está todo acabado
-	actualizarGuanyadorGrup(
-		grupHTML,
-		ordenadaP3
-	);
 
-	console.log("CLASIFICACIÓN FINAL");
+    const ordenadaP3 = ordenarClassificacio(
+        classificacioP3
+    );
+
+
+    pintarClassificacio(
+        grupHTML,
+        ordenadaP3
+    );
+
+/*console.log(
+    "ACTUALIZANDO SEMIFINALISTA",
+    {
+        p1: tieneResultado(p1),
+        p2: tieneResultado(p2),
+        p3: tieneResultado(p3)
+    }
+);*/
+
+    actualizarGuanyadorGrup(
+        grupHTML,
+        ordenadaP3
+    );
+
+
+    console.log("CLASIFICACIÓN FINAL");
 
 }
+
 
 function tieneResultado(partido) {
 
@@ -1676,6 +2292,151 @@ function habilitarPenals(partit) {
 
 }
 
+function tieneGanadorPenaltis(partido) {
+
+    const penales = partido.querySelectorAll(".penal");
+
+    const local = parseInt(penales[0].value);
+    const visitante = parseInt(penales[1].value);
+
+    return (
+        !isNaN(local) &&
+        !isNaN(visitante) &&
+        local !== visitante
+    );
+
+}
+
+function restaurarPartits(grupHTML) {
+
+	//console.log("ENTRA restaurarPartits");
+
+    const p2 =
+        grupHTML.querySelector('.partido[data-id="2"]');
+
+    const p3 =
+        grupHTML.querySelector('.partido[data-id="3"]');
+
+
+    // ======================
+    // RESTAURAR P2
+    // ======================
+
+    p2.dataset.visitant = "";
+
+    const visitanteP2 =
+        p2.querySelector(".equipo.visitante");
+
+
+    visitanteP2.innerHTML = `
+        <span class="pendent">
+            Perdedor P1
+        </span>
+    `;
+
+
+    p2.querySelectorAll(".gol")
+        .forEach(gol => {
+
+            gol.value = "";
+            gol.disabled = true;
+
+        });
+
+
+    p2.querySelectorAll(".penal")
+        .forEach(penal => {
+
+            penal.value = "";
+            penal.disabled = true;
+            penal.classList.remove("penal-error");
+
+        });
+
+
+    p2.querySelector(".penaltis")
+        .classList.add("oculto");
+
+
+
+    // ======================
+    // RESTAURAR P3
+    // ======================
+
+    p3.dataset.visitant = "";
+
+    const visitanteP3 =
+        p3.querySelector(".equipo.visitante");
+
+
+    visitanteP3.innerHTML = `
+        <span class="pendent">
+            Guanyador P1
+        </span>
+    `;
+
+
+    p3.querySelectorAll(".gol")
+        .forEach(gol => {
+
+            gol.value = "";
+            gol.disabled = true;
+
+        });
+
+
+    p3.querySelectorAll(".penal")
+        .forEach(penal => {
+
+            penal.value = "";
+            penal.disabled = true;
+            penal.classList.remove("penal-error");
+
+        });
+
+
+    p3.querySelector(".penaltis")
+        .classList.add("oculto");
+
+/*console.log(
+    "P2 oculto:",
+    p2.querySelector(".penaltis").className
+);
+
+console.log(
+    "P3 oculto:",
+    p3.querySelector(".penaltis").className
+);*/
+
+}
+
+function actualizarGuanyadorGrup(grupHTML, classificacio) {
+
+    if (!classificacio || classificacio.length === 0)
+        return;
+
+
+    const guanyador = classificacio[0];
+
+
+    const numeroGrup = parseInt(grupHTML.dataset.grup);
+
+
+    const origenes = [
+        "dilluns",
+        "dimarts",
+        "dimecres",
+        "dijous"
+    ];
+
+
+    actualizarEquipoFaseFinal(
+        origenes[numeroGrup],
+        guanyador
+    );
+
+}
+
 function actualitzarCalendari(grupHTML, grupConfig) {
 	
 	//console.log("ENTRA actualitzarCalendari");
@@ -1690,8 +2451,8 @@ function actualitzarCalendari(grupHTML, grupConfig) {
 
     // Si aún no hay resultado
     if (isNaN(golsLocal) || isNaN(golsVisitant)) {
-		console.log("Partido ignorado");
-		restaurarPartits(grupHTML);
+		//console.log("Partido ignorado");
+		//restaurarPartits(grupHTML);
 		return;
 	}
 
@@ -1794,19 +2555,25 @@ function actualitzarCalendari(grupHTML, grupConfig) {
 
 function actualitzarEquipPartit(partit, equip, numeroEquip) {
 
-    //console.log("Actualizando partido", partit.dataset.id);
-
-
     const equipoActual =
         parseInt(partit.dataset.visitant);
 
 
-    // Solo limpiamos si realmente cambia el equipo
     const cambiaEquipo =
         equipoActual !== numeroEquip;
 
 
-    const visitant = partit.querySelector(".equipo.visitante");
+    /*console.log(
+        "Partido", partit.dataset.id,
+        "equipo actual:", equipoActual,
+        "nuevo:", numeroEquip,
+        "cambia:", cambiaEquipo
+    );*/
+
+
+    const visitant =
+        partit.querySelector(".equipo.visitante");
+
 
     visitant.innerHTML = `
         <img src="${equip.escut}" alt="">
@@ -1817,26 +2584,7 @@ function actualitzarEquipPartit(partit, equip, numeroEquip) {
     partit.dataset.visitant = numeroEquip;
 
 
-    if (cambiaEquipo) {
-
-        /*console.log(
-            "Cambia equipo, limpiando partido",
-            partit.dataset.id
-        );*/
-
-
-        partit.querySelectorAll(".gol").forEach(gol => {
-            gol.value = "";
-        });
-
-
-        partit.querySelectorAll(".penal").forEach(penal => {
-            penal.value = "";
-            penal.disabled = true;
-        });
-
-    }
-
+    // NO limpiar aquí
 }
 
 function pintarClassificacio(grup, classificacio) {
@@ -2003,9 +2751,9 @@ function necesitaPenaltisPartido3(grupHTML, grupConfig) {
 
     if (resultado === true) {
 
-        console.log(
+        /*console.log(
             "P3 necesita penaltis"
-        );
+        );*/
 
         return true;
 
@@ -2029,9 +2777,9 @@ function necesitaPenaltisPartido3(grupHTML, grupConfig) {
 
         if (hayEmpateSinResolver(classificacio)) {
 
-            console.log(
+            /*console.log(
                 "P3 necesita penaltis por reglamento"
-            );
+            );*/
 
             return true;
 
@@ -2063,5 +2811,33 @@ function quitarPenaltis(partit) {
     });
 
     contenedor.classList.add("oculto");
+
+}
+
+function comprobarEmpatePenaltis(partido){
+
+    const penales = partido.querySelectorAll(".penal");
+
+    const local = parseInt(penales[0].value);
+    const visitante = parseInt(penales[1].value);
+
+
+    if (!isNaN(local) && !isNaN(visitante)) {
+
+        if (local === visitante) {
+
+            penales.forEach(campo => {
+                campo.classList.add("penal-error");
+            });
+
+        } else {
+
+            penales.forEach(campo => {
+                campo.classList.remove("penal-error");
+            });
+
+        }
+
+    }
 
 }

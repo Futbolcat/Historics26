@@ -5,7 +5,8 @@ const CONFIG = {
     titol: "Torneig d'Històrics - ",
 
     logos: {
-        torneig: "https://www.torneigdhistorics.cat/wp-content/uploads/2023/07/logo_th23.png",
+        //torneig: "https://www.torneigdhistorics.cat/wp-content/uploads/2023/07/logo_th23.png",
+		torneig: "img/LogoTHFC_100.png",
         club: "https://files.fcf.cat/escudos/clubes/escudos/00100_0000577607_martinenc-200x200.png"
     },
 
@@ -127,5 +128,133 @@ const CONFIG = {
             ]
 		}
 		
-    ]
+    ],
+	
+	bloqueos: {
+
+		grups: [
+			false, // Dilluns
+			false, // Dimarts
+			false, // Dimecres
+			false  // Dijous
+		],
+
+		semifinals: false,
+
+		final: false
+
+	},
+	resultados: {
+		grups: [
+			null,
+			null,
+			null,
+			null,
+		],
+		semifinals: {
+			s1: null,
+			s2:  null
+		},
+		final: null
+
+	},
 };
+
+/*
+	resultados: {
+		grups: [
+			null,
+			null,
+			null,
+			null,
+		],
+		semifinals: {
+			s1: null,
+			s2:  null
+		},
+		final: null
+	},
+*/
+
+/*
+resultados: {
+
+		grups: [
+
+			{
+				p1: {
+					goles: [2,2],
+					penals: [2,1]
+				},
+				p2: {
+					goles: [1,1],
+					penals: [3,2]
+				},
+				p3: {
+					goles: [1,1],
+					penals: [1,2]
+				}
+			},
+			{
+				p1: {
+					goles: [2,2],
+					penals: [2,1]
+				},
+				p2: {
+					goles: [1,1],
+					penals: [3,2]
+				},
+				p3: {
+					goles: [1,1],
+					penals: [1,2]
+				}
+			},
+			{
+				p1: {
+					goles: [2,2],
+					penals: [2,1]
+				},
+				p2: {
+					goles: [1,1],
+					penals: [3,2]
+				},
+				p3: {
+					goles: [1,1],
+					penals: [1,2]
+				}
+			},
+			{
+				p1: {
+					goles: [2,2],
+					penals: [2,1]
+				},
+				p2: {
+					goles: [1,1],
+					penals: [3,2]
+				},
+				p3: {
+					goles: [1,1],
+					penals: [1,2]
+				}
+			},
+
+		],
+
+		semifinals: {
+			s1: {
+					goles: [1,1],
+					penals: [1,2]
+				},
+			s2:  {
+					goles: [1,1],
+					penals: [1,2]
+				}
+		},
+
+		final: {
+					goles: [1,1],
+					penals: [1,2]
+				}
+
+	},
+*/
