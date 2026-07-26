@@ -350,13 +350,46 @@
     }
 	
 	#datosFicha {
-        max-height: 400px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+			max-height: 450px;
+			overflow: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		#datosFicha table {
+			width:100%;
+		}
 	
 	#datosFicha td {
         padding: 4px !important;
     }
+	/* ========================================================== */
+	/* TABLA PRINCIPAL EN MÓVIL                                   */
+	/* ========================================================== */
+
+	#tablaDatosPrincipal {
+		font-size: 13px;
+	}
+
+	#tablaDatosPrincipal th,
+    #tablaDatosPrincipal td {
+        font-size: 10px;
+        padding: 2px;
+    }
 	
+	/* Columna nombre jugador (columna 3) */
+	#tablaDatosPrincipal th:nth-child(3),
+	#tablaDatosPrincipal td:nth-child(3) {
+		min-width: 150px;
+	}
+
+
+	/* Columnas pequeñas */
+	#tablaDatosPrincipal th:nth-child(1),
+	#tablaDatosPrincipal td:nth-child(1),
+	#tablaDatosPrincipal th:nth-child(2),
+	#tablaDatosPrincipal td:nth-child(2) {
+		width: 50px;
+		min-width: 50px;
+		text-align: center;
+	}
 }
