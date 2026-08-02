@@ -1,427 +1,71 @@
-// ==========================================
-// CONFIGURACIÓ HORIZONTAL (ENLLACES I ESCUTS)
-// ==========================================
-const URL_API = "https://script.google.com/macros/s/AKfycbzggpYvXbcCjXahfxqatcq0FYE_FjYVayUYs5RYD0-QsHVooxVAcsQoHCs4m-OMEJP7EA/exec";
-const URL_LOGO_TORNEO = "img/LogoTHFC_100.png";
-const URL_CLUB = "https://files.fcf.cat/escudos/clubes/escudos/00100_0000577607_martinenc-200x200.png";
-
-// DICCIONARI D'ESCUTS DELS CLUBS
-// Escriu el nom exacte de la pestanya del teu Sheets i al costat el seu enllaç de la foto
-const ESCUDOS_EQUIPOS = { 
-  "CE Europa": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000735880_europa_200x200.png", 
-  "Reus FC Reddis": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000880558_reddis_200.png", 
-  "UE Sant Andreu": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000573790_standreu_200x200.png", 
-  "CF Badalona": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000574727_bdn_200x200.png", 
-  "CE l'Hospitalet": "https://files.fcf.cat/escudos/clubes/escudos/00100_0001106091_COLOR.png", 
-  "CF Vilanova": "https://files.fcf.cat/escudos/clubes/escudos/00100_0001044079_cfv.png", 
-  "CF Montañesa": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000584781_montanesa_200x200.png", 
-  "FC Martinenc": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000577607_martinenc-200x200.png", 
-  "AE Prat": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000892062_aeprat_200.png", 
-  "UA Horta": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000959029_1049_HortaUAT_200.png", 
-  "CE Júpiter": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000672018_cejupiter_200x200.png", 
-  "UE Sants": "https://files.fcf.cat/escudos/clubes/escudos/00100_0000959051_1051_SantUE_200.png" 
-};
-
-// Variable global interna para guardar los datos cargados del equipo actual
-let datosEquipoActual = null;
-
-// ==========================================
-// CÀRREGA INICIAL DE LA WEB
-// ==========================================
-window.onload = function() { 
-  document.getElementById("imgTorneo").src = URL_LOGO_TORNEO;
-  document.getElementById("imgClub").src = URL_CLUB;
-  fetch(`${URL_API}?accion=lista`)
-    .then(res => res.json())
-    .then(cargarSelector)
-    .catch(err => console.error("Error llista:", err)); 
-};
-
-function cambiarEscudo() { 
-  var equipoSeleccionado = document.getElementById('equipo').value; 
-  var imgEscudo = document.getElementById('escudoClub'); 
-  if (equipoSeleccionado && ESCUDOS_EQUIPOS[equipoSeleccionado]) { 
-    imgEscudo.src = ESCUDOS_EQUIPOS[equipoSeleccionado]; 
-    imgEscudo.style.display = "block"; 
-  } else { 
-    imgEscudo.style.display = "none"; 
-  }
-  document.getElementById('bloqueJugador').style.display = "none";
-  document.getElementById('resultado').innerHTML = "";
-  datosEquipoActual = null;
-}
-
-function cargarSelector(equipos) { 
-  var select = document.getElementById('equipo'); 
-  select.innerHTML = '<option value="">Tria equip</option>'; 
-  if (equipos && Array.isArray(equipos)) { 
-    equipos.forEach(function(nombre) { 
-      var option = document.createElement('option'); 
-      option.value = nombre; 
-      option.text = nombre; 
-      select.appendChild(option); 
-    }); 
-  } 
-}
-
-// ==========================================
-// ENVIAMENT I RECEPCIÓ DE DADES DES DEL SHEETS
-// ==========================================
-function buscar() { 
-  var equipo = document.getElementById('equipo').value; 
-  if (!equipo) { 
-    document.getElementById('resultado').innerHTML = "<p style='color:orange; text-align:center;'>Si us plau, selecciona un equip vàlid.</p>"; 
-    return; 
-  } 
-  document.getElementById('resultado').innerHTML = "<p class='cargando'>Buscant les dades...</p>"; 
-  fetch(`${URL_API}?accion=equipo&nombre=${encodeURIComponent(equipo)}`)
-    .then(res => res.json())
-    .then(procesarDatos)
-    .catch(err => { 
-      document.getElementById('resultado').innerHTML = "<p style='color:red; text-align:center;'>Error de connexió.</p>"; 
-    }); 
-}
-
-function procesarDatos(resultadoBloques) { 
-  if (!resultadoBloques || !resultadoBloques.principal || resultadoBloques.principal.length === 0) { 
-    document.getElementById('resultado').innerHTML = "<p style='color:red; text-align:center;'>La fulla està buida o no s'ha trobat.</p>"; 
-    return; 
-  } 
-  datosEquipoActual = resultadoBloques;
-  var datosPrincipal = resultadoBloques.principal;
-  var columnaNomIndex = -1;
-  var columnaRolIndex = -1;
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="img/LogoTHFC_100.png">
+    <link rel="stylesheet" href="css/plantilles.css">
+    <title>Torneig d'Històrics 2026 - Equips</title>
+  </head>
+  <body>
   
-  if (datosPrincipal && datosPrincipal.length > 0) {
-    for (var j = 0; j < datosPrincipal[0].length; j++) {
-      var textoCabecera = datosPrincipal[0][j].toString().trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      if (textoCabecera.indexOf("NOM") > -1 || textoCabecera === "JUGADOR") columnaNomIndex = j;
-      if (textoCabecera.indexOf("DEMARCACIO") > -1 || textoCabecera.indexOf("ROL") > -1 || textoCabecera.indexOf("POSICIO") > -1) columnaRolIndex = j;
-    }
-  }
+	<header>
 
-  var comboJugador = document.getElementById('jugador');
-  comboJugador.innerHTML = '<option value="">Tria jugador</option>';
-  
-  if (columnaNomIndex !== -1) {
-    var nombresMiembros = [];
-    var ignorarRestoCombo = false;
-    for (var i = 1; i < datosPrincipal.length; i++) {
-      var filaVacia = datosPrincipal[i].every(function(c) { return c.toString().trim() === ""; });
-      if (filaVacia) continue;
-      if (columnaRolIndex !== -1) {
-        var valorRol = datosPrincipal[i][columnaRolIndex].toString().trim().toLowerCase();
-        if (valorRol === "entrenador") { ignorarRestoCombo = true; }
-      }
-      if (!ignorarRestoCombo) {
-        var nombreValue = datosPrincipal[i][columnaNomIndex].toString().trim();
-        if (nombreValue !== "") nombresMiembros.push(nombreValue);
-      }
-    }
-    nombresMiembros.sort(function(a, b) { return a.localeCompare(b); });
-    nombresMiembros.forEach(function(nom) {
-      var opt = document.createElement('option');
-      opt.value = nom;
-      opt.text = nom;
-      comboJugador.appendChild(opt);
-    });
-    document.getElementById('bloqueJugador').style.display = "block";
-  }
-  renderizarTablasCompletas();
-}
+		<div class="logo-container">
+			<img id="imgTorneo" class="logo" src="" alt="Logo Torneig">
+		</div>
 
-function renderizarTablasCompletas() {
-  if (!datosEquipoActual) return;
-  var htmlFinal = generarEstructuraTabla(datosEquipoActual.principal, "tablaDatosPrincipal", true, datosEquipoActual.coloresP); 
-  htmlFinal += "<div class='espacio-tablas'></div>"; 
-  htmlFinal += generarEstructuraTabla(datosEquipoActual.secundaria, "tablaDatosSecundaria", false, datosEquipoActual.coloresS); 
-  document.getElementById('resultado').innerHTML = htmlFinal;
-}
+		<div class="titulo-header">
+			<h1>Torneig d'Històrics - 2026</h1>
+			<a class="enlace-torneig" href="https://futbolcat.github.io/Historics26/" target="_blank">
+				📅 Veure calendari Torneig Històrics
+			</a>
+		</div>
 
+		<div class="logo-container">
+			<img id="imgClub" class="logo" src="" alt="Logo Club">
+		</div>
 
-// ==========================================
-// VISTA INTERACTIVA DE LA FITXA VERTICAL
-// ==========================================
+	</header>
 
-function detectarMiembro() {
-  var miembroSeleccionado = document.getElementById('jugador').value;
-  var comboJugador = document.getElementById('jugador');
-  
-  if (!miembroSeleccionado) {
-    if (comboJugador && comboJugador.options) {
-      comboJugador.options.text = "Tria jugador"; 
-    }
-    renderizarTablasCompletas();
-    return;
-  }
-  
-  if (comboJugador && comboJugador.options) {
-    comboJugador.options.text = "Esborrar";
-  }
-  
-  var htmlFicha = '<div style="margin-top: 25px; padding: 20px; background: #f8f9fa; border: 2px solid #CF2732; border-radius: 8px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center;">';
-  //htmlFicha += '<h3 style="margin: 0; color: #1a73e8; font-size: 22px;">Fitxa jugador</h3>';
-  htmlFicha += '<div id="datosFicha" style="/*margin-top:15px;*/ text-align:left;"></div>';
-  htmlFicha += '</div>';
-  
-  document.getElementById('resultado').innerHTML = htmlFicha;
-  completarDatosFicha(miembroSeleccionado);
-}
-
-function completarDatosFicha(nombreJugador) {
-  if (!datosEquipoActual) return;
-  var datosP = datosEquipoActual.principal;
-  var datosS = datosEquipoActual.secundaria;
-  var coloresS = datosEquipoActual.coloresS;
-  
-  var colNom = 3; 
-  var filaIdx = -1;
-  for (var i = 1; i < datosP.length; i++) {
-    if (datosP[i][colNom].toString().trim() === nombreJugador) { 
-      filaIdx = i; 
-      break; 
-    }
-  }
-  if (filaIdx === -1) return;
-
-  var tablaHtml = '<table style="width: 100%; border-collapse: collapse;">';
-  
-  // 1. Líneas de la Tabla Principal (C:I)
-  if (datosP && datosP.length > 0) {
-    for (var j = 0; j < datosP[0].length; j++) {
-      var tit = datosP[0][j].toString().trim();
-      var val = datosP[filaIdx][j].toString().trim();
-      if (tit === "" || tit.toUpperCase().indexOf("BAIXES") > -1) continue;
-      
-      tablaHtml += '<tr style="border-bottom: 1px solid #CF2732;">';
-      tablaHtml += '<td style="padding: 10px; font-weight: bold; color: #2c3e50; width: 40%; font-size: 15px; text-transform: uppercase; white-space: normal; word-break: break-word;">' + tit + ':</td>';
-      tablaHtml += '<td style="padding: 10px; color: #333; font-size: 16px; white-space: normal; word-break: break-word;">' + val + '</td>';
-      tablaHtml += '</tr>';
-    }
-  }
-  
-  // 2. Línea de la Tabla Secundaria (K - Baixes) - Lectura directa de columna única
-  if (datosS && datosS.length > 0 && datosS[filaIdx]) {
-    var titS = datosS[0][0].toString().trim();
-    var valS = datosS[filaIdx][0].toString().trim();
-    
-    if (titS !== "" && titS.toUpperCase().indexOf("BAIXES") === -1) {
-      var estiloColorK = "";
-      if (coloresS && coloresS[filaIdx] && coloresS[filaIdx][0]) {
-        var colKGoogle = coloresS[filaIdx][0].toString().trim();
-        if (colKGoogle !== "#000000" && colKGoogle !== "") {
-          estiloColorK = 'style="color: ' + colKGoogle + ' !important;"';
-        }
-      }
-      
-      tablaHtml += '<tr style="border-bottom: 1px solid #ddd;">';
-      tablaHtml += '<td style="padding: 10px; font-weight: bold; color: #2c3e50; width: 40%; font-size: 15px; text-transform: uppercase; white-space: normal; word-break: break-word;">' + titS + ':</td>';
-      tablaHtml += '<td style="padding: 10px; font-size: 16px; white-space: normal; word-break: break-word;" ' + estiloColorK + '>' + valS + '</td>';
-      tablaHtml += '</tr>';
-    }
-  }
-  
-  tablaHtml += '</table>';
-  document.getElementById('datosFicha').innerHTML = tablaHtml;
-}
-
-
-
-// ==========================================
-// GENERAR TAULA CAMB DADES
-// ==========================================
-
-  // ==========================================
-// GENERAR TAULA CAMB DADES (CORREGIDA)
-// ==========================================
-
-function generarEstructuraTabla(datos, idTabla, aplicarRoles, matrizColores) { 
-  if (!datos || datos.length === 0) return ''; 
-  
-  // CORRECCIÓN DEFINITIVA: Fijamos un ancho limpio de 500px para que en el ordenador encaje milimétrico
-  var estiloContenedor = "";
-  if (idTabla === "tablaDatosSecundaria") {
-    estiloContenedor = 'style="width: 100%; max-width: 500px; margin: 20px auto 0 auto;"';
-  }
-  
-  if (idTabla === "tablaDatosPrincipal") {
-    styleContenedor = 'style="width: 100%; max-width: 1200px; margin: 20px auto 0 auto;"';
-  }
-  
-  var html = '<div class="tabla-contenedor" ' + estiloContenedor + '><table id="' + idTabla + '">'; 
-  var indicesAutoCentrados = []; 
-  
-  // Apuntamos estrictamente a la fila 0 para los nombres de las cabeceras
-  var cabeceraFila = datos[0]; 
-  
-  if (cabeceraFila && Array.isArray(cabeceraFila)) {
-    for (var j = 0; j < cabeceraFila.length; j++) { 
-      var nombreCabecera = cabeceraFila[j].toString().replace(/\s+/g, ' ').trim().toLowerCase(); 
-      if (nombreCabecera === "dorsal" || nombreCabecera === "data naixement" || nombreCabecera === "anys al club") { 
-        indicesAutoCentrados.push(j); 
-      } 
-    } 
-  }
-  
-  var pararDespuesDeEntrenador = false;
-  
-  for (var i = 0; i < datos.length; i++) { 
-    if (aplicarRoles && pararDespuesDeEntrenador) break;
-    var filaVacia = datos[i].every(function(celda) { return celda.toString().trim() === ""; }); 
-    if (filaVacia) continue; 
-    
-    var esEntrenador = false; 
-    if (aplicarRoles && i > 0) { 
-      for (var c = 0; c < datos[i].length; c++) { 
-        if (datos[i][c].toString().trim().toLowerCase() === "entrenador") { esEntrenador = true; pararDespuesDeEntrenador = true; break; } 
-      } 
-    } 
-    
-    var claseFila = (i === 0) ? 'class="cabecera"' : (esEntrenador ? 'class="fila-entrenador"' : ''); 
-    
-    // =========================================================================
-    // RESTAURADO: CABECERA DE LA TABLA DE BAJAS NATIVA
-    // =========================================================================
-    if (i === 0 && idTabla === "tablaDatosSecundaria") {
-      var tituloOriginalExcel = datos[i] ? datos[i].toString().trim() : "BAIXES 25/26";
-	  
-      html += '<tr class="cabecera">';
-      html += '<th colspan="2" style="">' + tituloOriginalExcel + '</th>';
-      html += '</tr>';
-      
-      html += '<tr class="cabecera">';
-      html += '<th style="font-size: 12px; padding: 8px 12px;">JUGADOR</th>';
-      html += '<th style="font-size: 12px; padding: 8px 12px;">DESTÍ</th>';
-      html += '</tr>';
-      continue; 
-    }
-    
-    html += '<tr ' + claseFila + '>'; 
-    
-    for (var j = 0; j < datos[i].length; j++) { 
-      var valorCell = datos[i][j].toString().trim(); 
-      var claseCelda = indicesAutoCentrados.includes(j) ? 'class="col-auto-centrada"' : ''; 
-      
-      var estiloColorInline = "";
-      if (i > 0 && !esEntrenador && matrizColores && matrizColores[i] && matrizColores[i][j]) {
-        var colorGoogle = matrizColores[i][j].toString().trim();
-        
-        // CORRECCIÓN AQUÍ: Leemos siempre de datos[0][j] para obtener el título real de la columna
-        var tituloColumnaActual = datos[0] && datos[0][j] ? datos[0][j].toString().trim().toUpperCase() : "";
-        var esColumnaPermitida = (tituloColumnaActual.indexOf("NOM FUTBOL") > -1 || idTabla === "tablaDatosSecundaria");
-        
-        if (esColumnaPermitida && colorGoogle !== "#000000" && colorGoogle !== "") {
-          estiloColorInline = 'style="color: ' + colorGoogle + ' !important;"';
-        }
-      }
-      
-      if (i === 0) { 
-        html += '<th>' + valorCell + '</th>'; 
-      } else { 
-        if (idTabla === "tablaDatosSecundaria") {
-          var primerGuionIdx = valorCell.indexOf("-");
-          var nombreJugadorBaja = "";
-          var destinoBaja = "";
+    <div class="contenedor">
+     
+      <div class="controles">
+        <!-- FRANJA SUPERIOR: Todo en una sola fila recta en PC -->
+        <div class="fila-superior-busqueda">
+          <div class="selector-bloque">
+            <img id="escudoClub" class="escudo-club" src="" alt="Escut">
+            <select id="equipo" onchange="cambiarEscudo()">
+              <option value="">Tria equip</option>
+            </select>
+          </div>
           
-          if (primerGuionIdx > -1) {
-            nombreJugadorBaja = valorCell.substring(0, primerGuionIdx).trim();
-            destinoBaja = valorCell.substring(primerGuionIdx + 1).trim();
-          } else {
-            nombreJugadorBaja = valorCell;
-            destinoBaja = "";
-          }
+          <button onclick="buscar()" style="width: auto; min-width: 110px; background-color: #CF2732;">Cerca</button>
           
-          html += '<td ' + estiloColorInline + '>' + nombreJugadorBaja + '</td>';
-          html += '<td ' + estiloColorInline + '>' + destinoBaja + '</td>';
-        } else {
-          if (aplicarRoles && !esEntrenador) { 
-            var textoMinuscula = valorCell.toLowerCase(); 
-            if (textoMinuscula === "porter") claseCelda = 'class="rol-porter"'; 
-            else if (textoMinuscula === "defensa") claseCelda = 'class="rol-defensa"'; 
-            else if (textoMinuscula === "migcampista") claseCelda = 'class="rol-migcampista"'; 
-            else if (textoMinuscula === "davanter") claseCelda = 'class="rol-davanter"'; 
-            else if (indicesAutoCentrados.includes(j)) claseCelda = 'class="col-auto-centrada"'; 
-          } else if (indicesAutoCentrados.includes(j)) { 
-            claseCelda = 'class="col-auto-centrada"'; 
-          } 
-          html += '<td ' + claseCelda + ' ' + estiloColorInline + '>' + valorCell + '</td>'; 
-        }
-      } 
-    } 
-    html += '</tr>'; 
-    if (aplicarRoles && esEntrenador) { 
-      html += '<tr class="fila-separadora">'; 
-      for (var k = 0; k < datos[i].length; k++) html += '<td></td>'; 
-      html += '</tr>'; 
-    } 
-  } 
-  html += '</table></div>'; 
-  return html; 
-}
+          <!-- LEYENDA INTEGRADA EN LA MISMA LÍNEA -->
+          <div class="separador-botones" style="margin: 0; border: none; padding: 0; width: auto; display: flex; gap: 12px;">
+            <div class="leyenda-item"><span class="leyenda-circulo" style="background-color: #38761d;"></span><span>Continua</span></div>
+            <div class="leyenda-item"><span class="leyenda-circulo" style="background-color: #1155cc;"></span><span>Possible fitxatge</span></div>
+            <div class="leyenda-item"><span class="leyenda-circulo" style="background-color: #cc0000;"></span><span>Possible baixa</span></div>
+            <div class="leyenda-item"><span class="leyenda-circulo" style="background-color: #674ea7;"></span><span>Possible destí</span></div>
+          </div>
+          
+          <button id="btnSub23" onclick="buscarSub23()" style="background-color: #CF2732; width: auto; min-width: 110px; margin-left: 100px;">Sub-23</button>
+        </div>
+        
+        <!-- FRANJA INFERIOR: El buscador de jugadores aparece abajo, alineado al desplegable del club -->
+        <div id="bloqueJugador" class="bloque-jugador">
+          <select id="jugador" onchange="detectarMiembro()">
+            <option value="">Tria jugador</option>
+          </select>
+        </div>
+      </div>
 
 
+      
+      <div id="resultado"></div>
+    </div>
+    <script src="js/plantilles.js"></script>
+  </body>
+</html>
 
-// ==========================================
-// NUEVA PANTALLA: CERCADOR JUGADORS SUB23
-// ==========================================
-function buscarSub23() {
-  document.getElementById('resultado').innerHTML = "<p class='cargando'>Buscant tots els jugadors Sub23 a les plantilles...</p>";
-  
-  // 1. Blanquear el desplegable de equipos y el de jugadores
-  document.getElementById('equipo').value = "";
-  document.getElementById('bloqueJugador').style.display = "none";
-  
-  // 2. Ocultar el escudo del club que estuviera en pantalla
-  document.getElementById('escudoClub').style.display = "none";
-  
-  // 3. Lanzar la petición al servidor de Google Sheets
-  fetch(`${URL_API}?accion=sub23`)
-    .then(res => res.json())
-    .then(mostrarTablaSub23)
-    .catch(err => {
-      document.getElementById('resultado').innerHTML = "<p style='color:red; text-align:center;'>Error de connexió al cercar Sub23.</p>";
-    });
-}
-
-// =========================================================================
-// FUNCIÓ SUB23 CORREGIDA: Color especial para fechas que empiezan por 00/00/
-// =========================================================================
-function mostrarTablaSub23(listaSub23) {
-  if (!listaSub23 || listaSub23.length === 0) {
-    document.getElementById('resultado').innerHTML = "<p style='color:orange; text-align:center;'>No s'ha trobat cap jugador nascut després del 31/12/2002.</p>";
-    return;
-  }
-  
-  var html = '<div class="tabla-contenedor" style="max-width: 600px; min-height: 600px; margin: 20px auto 0 auto;"><table>';
-  
-  // CORRECCIÓN INLINE: Reducimos de 100px a 70px y permitimos saltos de línea con white-space: normal
-  html += '<tr class="cabecera"><th>Equip</th><th>Nom</th><th class="col-auto-centrada" style="width: 70px; min-width: 70px; white-space: normal !important;">Data Naixement</th></tr>';
-  
-  for (var i = 0; i < listaSub23.length; i++) {
-    var equipoNom = listaSub23[i][0];
-    var nombre = listaSub23[i][1];
-    var fecha = listaSub23[i][2];
-    
-    var equipoLimpio = equipoNom ? equipoNom.toString().trim() : "";
-    var urlEscudo = ESCUDOS_EQUIPOS[equipoLimpio] || "https://wikimedia.org";
-    
-    // Validamos si la fecha tiene el formato "00/00/" para aplicarle el color
-    var fechaLimpia = fecha ? fecha.toString().trim() : "";
-    var estiloFecha = 'style="width: 70px; min-width: 70px; white-space: normal !important;"';
-    
-    if (fechaLimpia.indexOf("00/00/") === 0) {
-      estiloFecha = 'style="width: 70px; min-width: 70px; white-space: normal !important; color: #CF2732 !important; font-weight: bold;"';
-    }
-    
-    html += '<tr>';
-    html += '<td><div class="celda-equipo"><img class="escudo-tabla-sub23" src="' + urlEscudo + '" alt="Escut"><span class="texto-equipo-sub23">' + equipoLimpio + '</span></div></td>';
-    html += '<td style="white-space: normal !important; word-break: break-word;">' + nombre + '</td>';
-    
-    // Renderizamos la celda de la fecha con el estilo dinámico
-    html += '<td class="col-auto-centrada" ' + estiloFecha + '>' + fechaLimpia + '</td>';
-    html += '</tr>';
-  }
-  
-  html += '</table></div>';
-  document.getElementById('resultado').innerHTML = html;
-}
