@@ -383,16 +383,18 @@ function buscarSub23() {
     });
 }
 
+// =========================================================================
+// FUNCIÓ SUB23 CORREGIDA: Color especial para fechas que empiezan por 00/00/
+// =========================================================================
 function mostrarTablaSub23(listaSub23) {
   if (!listaSub23 || listaSub23.length === 0) {
     document.getElementById('resultado').innerHTML = "<p style='color:orange; text-align:center;'>No s'ha trobat cap jugador nascut després del 31/12/2002.</p>";
     return;
   }
   
-  /*var html = '<div class="tabla-contenedor" style="max-width: 600px; margin: 20px auto 0 auto;"><table>';*/
   var html = '<div class="tabla-contenedor" style="max-width: 600px; min-height: 600px; margin: 20px auto 0 auto;"><table>';
   
-  // CORRECCIÓN INLINE AQUÍ: Reducimos de 100px a 70px y permitimos saltos de línea con white-space: normal
+  // CORRECCIÓN INLINE: Reducimos de 100px a 70px y permitimos saltos de línea con white-space: normal
   html += '<tr class="cabecera"><th>Equip</th><th>Nom</th><th class="col-auto-centrada" style="width: 70px; min-width: 70px; white-space: normal !important;">Data Naixement</th></tr>';
   
   for (var i = 0; i < listaSub23.length; i++) {
@@ -403,16 +405,23 @@ function mostrarTablaSub23(listaSub23) {
     var equipoLimpio = equipoNom ? equipoNom.toString().trim() : "";
     var urlEscudo = ESCUDOS_EQUIPOS[equipoLimpio] || "https://wikimedia.org";
     
+    // Validamos si la fecha tiene el formato "00/00/" para aplicarle el color
+    var fechaLimpia = fecha ? fecha.toString().trim() : "";
+    var estiloFecha = 'style="width: 70px; min-width: 70px; white-space: normal !important;"';
+    
+    if (fechaLimpia.indexOf("00/00/") === 0) {
+      estiloFecha = 'style="width: 70px; min-width: 70px; white-space: normal !important; color: #CF2732 !important; font-weight: bold;"';
+    }
+    
     html += '<tr>';
     html += '<td><div class="celda-equipo"><img class="escudo-tabla-sub23" src="' + urlEscudo + '" alt="Escut"><span class="texto-equipo-sub23">' + equipoLimpio + '</span></div></td>';
     html += '<td style="white-space: normal !important; word-break: break-word;">' + nombre + '</td>';
     
-    // CORRECCIÓN INLINE AQUÍ TAMBIÉN: Ajustamos a 70px y añadimos white-space normal para las celdas de los jugadores
-    html += '<td class="col-auto-centrada" style="width: 70px; min-width: 70px; white-space: normal !important;">' + fecha + '</td>';
+    // Renderizamos la celda de la fecha con el estilo dinámico
+    html += '<td class="col-auto-centrada" ' + estiloFecha + '>' + fechaLimpia + '</td>';
     html += '</tr>';
   }
   
   html += '</table></div>';
   document.getElementById('resultado').innerHTML = html;
 }
-
