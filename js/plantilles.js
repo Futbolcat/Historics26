@@ -231,6 +231,10 @@ function completarDatosFicha(nombreJugador) {
 // GENERAR TAULA CAMB DADES
 // ==========================================
 
+  // ==========================================
+// GENERAR TAULA CAMB DADES (CORREGIDA)
+// ==========================================
+
 function generarEstructuraTabla(datos, idTabla, aplicarRoles, matrizColores) { 
   if (!datos || datos.length === 0) return ''; 
   
@@ -241,12 +245,14 @@ function generarEstructuraTabla(datos, idTabla, aplicarRoles, matrizColores) {
   }
   
   if (idTabla === "tablaDatosPrincipal") {
-    estiloContenedor = 'style="width: 100%; max-width: 1200px; margin: 20px auto 0 auto;"';
-	}
+    styleContenedor = 'style="width: 100%; max-width: 1200px; margin: 20px auto 0 auto;"';
+  }
   
   var html = '<div class="tabla-contenedor" ' + estiloContenedor + '><table id="' + idTabla + '">'; 
   var indicesAutoCentrados = []; 
-  var cabeceraFila = datos; 
+  
+  // Apuntamos estrictamente a la fila 0 para los nombres de las cabeceras
+  var cabeceraFila = datos[0]; 
   
   if (cabeceraFila && Array.isArray(cabeceraFila)) {
     for (var j = 0; j < cabeceraFila.length; j++) { 
@@ -278,17 +284,8 @@ function generarEstructuraTabla(datos, idTabla, aplicarRoles, matrizColores) {
     // =========================================================================
     if (i === 0 && idTabla === "tablaDatosSecundaria") {
       var tituloOriginalExcel = datos[i] ? datos[i].toString().trim() : "BAIXES 25/26";
-      
-      /*html += '<tr class="cabecera">';
-      html += '<th colspan="2" style="border-bottom: 1px solid #ffde94 !important; border-left: 1px solid #CF2732 !important; border-right: 1px solid #CF2732 !important;border-top: 3px solid #CF2732 !important;">' + tituloOriginalExcel + '</th>';
-      html += '</tr>';
-      
-      html += '<tr class="cabecera">';
-      html += '<th style="font-size: 12px; padding: 8px 12px; border-top: 1px solid #ffde94 !important; border-bottom: 1px solid #ffde94 !important; border-left: 1px solid #815a01 !important; border-right: 1px solid #ffde94 !important;">JUGADOR</th>';
-      html += '<th style="font-size: 12px; padding: 8px 12px; border-top: 1px solid #ffde94 !important; border-bottom: 1px solid #ffde94 !important; border-left: 1px solid #ffde94 !important; border-right: 1px solid #815a01 !important;">DESTÍ</th>';
-      html += '</tr>';*/
 	  
-	  html += '<tr class="cabecera">';
+      html += '<tr class="cabecera">';
       html += '<th colspan="2" style="">' + tituloOriginalExcel + '</th>';
       html += '</tr>';
       
@@ -308,7 +305,9 @@ function generarEstructuraTabla(datos, idTabla, aplicarRoles, matrizColores) {
       var estiloColorInline = "";
       if (i > 0 && !esEntrenador && matrizColores && matrizColores[i] && matrizColores[i][j]) {
         var colorGoogle = matrizColores[i][j].toString().trim();
-        var tituloColumnaActual = cabeceraFila && cabeceraFila[j] ? cabeceraFila[j].toString().trim().toUpperCase() : "";
+        
+        // CORRECCIÓN AQUÍ: Leemos siempre de datos[0][j] para obtener el título real de la columna
+        var tituloColumnaActual = datos[0] && datos[0][j] ? datos[0][j].toString().trim().toUpperCase() : "";
         var esColumnaPermitida = (tituloColumnaActual.indexOf("NOM FUTBOL") > -1 || idTabla === "tablaDatosSecundaria");
         
         if (esColumnaPermitida && colorGoogle !== "#000000" && colorGoogle !== "") {
@@ -360,9 +359,6 @@ function generarEstructuraTabla(datos, idTabla, aplicarRoles, matrizColores) {
   return html; 
 }
 
-
-
-  
 
 
 // ==========================================
