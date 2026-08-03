@@ -133,7 +133,7 @@ const CONFIG = {
 	bloqueos: {
 
 		grups: [
-			false, // Dilluns
+			true, // Dilluns
 			false, // Dimarts
 			false, // Dimecres
 			false  // Dijous
@@ -146,7 +146,20 @@ const CONFIG = {
 	},
 	resultados: {
 		grups: [
-			null,
+			{
+				p1: {
+					goles: [2,0],
+					penals: [4,3]
+				},
+				p2: {
+					goles: [3,0],
+					penals: null
+				},
+				p3: {
+					goles: [0,1],
+					penals: null
+				}
+			},
 			null,
 			null,
 			null,
