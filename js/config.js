@@ -135,7 +135,7 @@ const CONFIG = {
 		grups: [
 			true, // Dilluns
 			true, // Dimarts
-			false, // Dimecres
+			true, // Dimecres
 			false  // Dijous
 		],
 
@@ -174,7 +174,20 @@ const CONFIG = {
 					penals: null
 				}
 			},
-			null,
+			{
+				p1: {
+					goles: [0,0],
+					penals: [3,0]
+				},
+				p2: {
+					goles: [1,0],
+					penals: null
+				},
+				p3: {
+					goles: [3,0],
+					penals: null
+				}
+			},
 			null,
 		],
 		semifinals: {
