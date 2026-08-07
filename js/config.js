@@ -136,7 +136,7 @@ const CONFIG = {
 			true, // Dilluns
 			true, // Dimarts
 			true, // Dimecres
-			false  // Dijous
+			true  // Dijous
 		],
 
 		semifinals: false,
@@ -188,7 +188,20 @@ const CONFIG = {
 					penals: null
 				}
 			},
-			null,
+			{
+				p1: {
+					goles: [0,0],
+					penals: [2,1]
+				},
+				p2: {
+					goles: [3,0],
+					penals: null
+				},
+				p3: {
+					goles: [2,1],
+					penals: null
+				}
+			},
 		],
 		semifinals: {
 			s1: null,
